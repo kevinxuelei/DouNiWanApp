@@ -1,0 +1,116 @@
+//
+//  DNWThirdVideoSubclassViewController.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWThirdVideoSubclassViewController.h"
+#import "DNWVideoPlayView.h"
+#import "DNWThirdData.h"
+#import "HMTMyCustomNetRequest.h"
+#import "DNWWedViewController.h"
+
+@interface DNWThirdVideoSubclassViewController ()
+{
+    DNWVideoPlayView * _DNWVPV;
+    
+}
+@end
+
+@implementation DNWThirdVideoSubclassViewController
+
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+    }
+    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+
+    [super viewWillAppear:animated];
+    
+    [_DNWVPV videoPlayer];
+    [_DNWVPV.videoPlayer.moviePlayer play];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+    
+    NSURL * url = [NSURL URLWithString:_thirdData.mp4_url];
+    _DNWVPV = [[DNWVideoPlayView alloc]initWithFrame:[[UIScreen mainScreen] bounds] url:url string:_thirdData.title];
+    _DNWVPV.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_DNWVPV];
+	[_DNWVPV release];
+    
+#pragma mark----创建UIBarButtonItem实现返回-------
+    UIBarButtonItem *barButton= [[UIBarButtonItem alloc]initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:self action:@selector(didClickleftBarButtonItemAction)];
+    self.navigationItem.leftBarButtonItem = barButton;
+    [barButton release];
+    self.navigationItem.title = @"逗乐玩视频播放";
+
+#pragma mark----使用block实现推出DNWWedViewController页面-------
+    __block DNWThirdVideoSubclassViewController *Block = self;
+
+    [_DNWVPV changeViewBackGround:^{
+       
+        [Block pushDNWWedViewController:_thirdData.web_url];
+        
+    }];
+    
+    
+}
+
+
+#pragma mark------推出DNWWedViewController页面实现-------
+- (void)pushDNWWedViewController:(NSString *)wed
+{
+    [_DNWVPV.videoPlayer.moviePlayer stop];
+    DNWWedViewController *DNWWViewController = [[DNWWedViewController alloc]init];
+    
+    NSURL * url = [NSURL URLWithString:_thirdData.web_url];
+    DNWWViewController.url = url;
+    
+    UINavigationController *rootNC = [[UINavigationController alloc]initWithRootViewController:DNWWViewController];
+    [self presentViewController:rootNC animated:YES completion:nil];
+    [rootNC release];
+    [DNWWViewController release];
+}
+
+#pragma mark------实现返回上个页面-------
+- (void)didClickleftBarButtonItemAction
+{
+    [_DNWVPV.videoPlayer.moviePlayer stop];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+- (void)dealloc
+{
+    RELEASE_SAFELY(_thirdData);
+    [super dealloc];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+#pragma mark----当屏幕旋转时调用方法--
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [_DNWVPV.videoPlayer.moviePlayer setFullscreen:YES animated:YES];
+}
+
+
+@end

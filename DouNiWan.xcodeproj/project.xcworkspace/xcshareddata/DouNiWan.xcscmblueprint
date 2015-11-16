@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "ed1d5fd7-7f61-4476-9ab6-e1981bf51f5f++1931",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "ed1d5fd7-7f61-4476-9ab6-e1981bf51f5f++1931" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "ed1d5fd7-7f61-4476-9ab6-e1981bf51f5f++1931" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "B3C3EA42-04EB-46D4-B73A-56F79AB1A754",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "ed1d5fd7-7f61-4476-9ab6-e1981bf51f5f++1931" : "DouNiWan%E6%9C%80%E7%BB%88%E7%89%88%E6%9C%AC\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "DouNiWan",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "DouNiWan.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "svn:\/\/172.16.5.1",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "ed1d5fd7-7f61-4476-9ab6-e1981bf51f5f++1931"
+    }
+  ]
+}

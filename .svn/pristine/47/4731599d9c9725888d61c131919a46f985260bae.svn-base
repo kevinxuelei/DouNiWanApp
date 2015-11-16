@@ -1,0 +1,18 @@
+//
+//  DNWPersonCenterViewController.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-15.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface DNWPersonCenterViewController : UIViewController<UITableViewDelegate,UITableViewDataSource>
+
+/**
+ *   平台用户协议对象
+ */
+@property(nonatomic,assign) id<ISSPlatformUser> userInfo;
+
+@end

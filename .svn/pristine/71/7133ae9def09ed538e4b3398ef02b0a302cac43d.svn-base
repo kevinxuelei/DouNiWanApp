@@ -1,0 +1,48 @@
+//
+//  DNWThirdCustomCell.h
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class DNWThirdData;
+typedef void(^myBlock)(void);
+
+@interface DNWThirdCustomCell : UITableViewCell
+
+
+//介绍
+@property (nonatomic,retain,readonly) UILabel * introduceLable;
+
+//图片
+@property (nonatomic,retain,readonly) UIImageView * picImageView;
+
+//图片上按钮的图片按钮
+@property(nonatomic,retain,readonly) UIImageView *imageButtonView;
+
+//图片按钮
+@property (nonatomic,retain,readonly) UIButton *imageButton;
+
+//时间显示
+@property (nonatomic,retain,readonly) UILabel * timeLabel;
+
+//收藏
+@property (nonatomic,retain,readonly) UIButton * collectButton;
+@property (nonatomic,retain,readonly) UILabel * collectLabel;
+//分享
+@property (nonatomic,retain,readonly) UIButton * shareButton;
+@property (nonatomic,retain,readonly) UILabel * shareLabel;
+
+@property (nonatomic,retain)DNWThirdData *thirdData;
+
++ (CGFloat)cellHight:(DNWThirdData *)data;
+
+
+@property (nonatomic,copy) myBlock block;
+
+- (void)changBackGround:(myBlock)block;
+
+
+@end

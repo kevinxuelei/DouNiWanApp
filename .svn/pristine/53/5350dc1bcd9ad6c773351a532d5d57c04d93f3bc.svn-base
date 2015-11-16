@@ -1,0 +1,171 @@
+//
+//  DNWFirstCusomCell.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#define IconView_MarginX 5
+#define IconView_MarginY 5
+#define IconView_Width_Height   40
+
+#define NameLabel_MarginY 5
+#define NameLabel_MarginLeft 5
+#define NameLabel_Width  100
+#define NameLabel_Height  20
+
+#define TimeLabel_MarginTop 0
+#define TimeLabel_MarginLeft 10
+#define TimeLabel_Width  100
+#define TimeLabel_Height  20
+
+#define collectButton_MarginY 5
+#define collectButton_X  270
+#define collectButton_Width_Height 45
+
+#define PaperTextLabel_MarginLeft 5
+#define PaperTextLabel_MarginTop 5
+#define PaperTextLabel_Width  310
+#define PaperTextLabel_Height 100
+
+#import "DNWFirstCustomCell.h"
+#import "DNWBottomLabelView.h"
+#import "DNWPaperData.h"
+#import "UIImageView+WebCache.h"
+
+@implementation DNWFirstCustomCell
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_paperData);
+    [super dealloc];
+}
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code
+        
+        [self createCustomCellView];
+        //self.backgroundColor = [UIColor redColor];
+        
+    }
+    return self;
+}
+
+#pragma mark - 初始化View
+- (void)createCustomCellView{
+
+    _profileImageView = [[UIImageView alloc] initWithFrame:CGRectMake(IconView_MarginX, IconView_MarginY, IconView_Width_Height, IconView_Width_Height)];
+     [self.contentView addSubview:_profileImageView];
+    [_profileImageView release];
+    
+    float nx = IconView_MarginX + IconView_Width_Height + NameLabel_MarginLeft;
+    _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(nx, NameLabel_MarginY, NameLabel_Width, NameLabel_Height)];
+    _nameLabel.font = [UIFont systemFontOfSize:10.0];
+    [self addSubview:_nameLabel];
+    [_nameLabel release];
+    
+    float px = nx;
+    float py = NameLabel_MarginY + NameLabel_Height + TimeLabel_MarginTop;
+    _passTimeLabel = [[UILabel alloc] initWithFrame:CGRectMake(px, py, TimeLabel_Width, TimeLabel_Height)];
+    _passTimeLabel.font = [UIFont systemFontOfSize:10.0];
+    [self addSubview:_passTimeLabel];
+    [_passTimeLabel release];
+    
+    _collectButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _collectButton.frame = CGRectMake(collectButton_X, collectButton_MarginY, collectButton_Width_Height, collectButton_Width_Height);
+    [_collectButton setTitle:@"收藏" forState:UIControlStateNormal];
+    [self addSubview:_collectButton];
+    
+    float ty = py + TimeLabel_Height + PaperTextLabel_MarginTop;
+    _paperTextLabel = [[UILabel alloc] initWithFrame:CGRectMake(PaperTextLabel_MarginLeft, ty, PaperTextLabel_Width, PaperTextLabel_Height)];
+    _paperTextLabel.font = [UIFont systemFontOfSize:15.0];
+    _paperTextLabel.numberOfLines = 0;
+    _paperTextLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    [self addSubview:_paperTextLabel];
+    [_paperTextLabel release];
+
+    _praiseView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_praiseView];
+    [_praiseView release];
+    
+    
+    _hateView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_hateView];
+    [_hateView release];
+    
+
+    [self createShareView];
+    
+    
+    _discussView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_discussView];
+    [_discussView release];
+
+}
+
+#pragma mark - 分享视图
+- (void)createShareView{
+
+    _shareView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_shareView];
+    [_shareView release];
+    
+}
+
+
+#pragma mark - 用传入的数据对象给自定义Cell完成赋值
+- (void)setPaperData:(DNWPaperData *)paperData{
+
+    if (_paperData != paperData) {
+        
+        [_paperData release];
+        _paperData = [paperData retain];
+        
+    }
+    
+    //  完成赋值
+    [_profileImageView setImageWithURL:[NSURL URLWithString:paperData.hostImageUrl] placeholderImage:nil];
+    _nameLabel.text               = paperData.hostName;
+    _passTimeLabel.text           = paperData.passTime;
+    _paperTextLabel.text          = paperData.paperText;
+    _praiseView.numberLabel.text  = paperData.favouriteNumber;
+    _hateView.numberLabel.text    = paperData.hateNumber;
+    _shareView.numberLabel.text   = paperData.shareNumber;
+    _discussView.numberLabel.text = paperData.discussNumber;
+    
+    //  自定义Cell高度
+    NSDictionary * attributedDic = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:15.0],NSFontAttributeName, nil];
+    CGRect newPaperTextRect = [paperData.paperText boundingRectWithSize:CGSizeMake(_paperTextLabel.frame.size.width, 20000) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributedDic context:nil];
+    CGRect oldPaperTextRect = _paperTextLabel.frame;
+    oldPaperTextRect.size.height = newPaperTextRect.size.height;
+    _paperTextLabel.frame = oldPaperTextRect;
+    
+    //  调整Text文本下面控件的问题,解决Cell重用问题
+    _praiseView.frame = CGRectMake(0, _paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+    _hateView.frame = CGRectMake(80, _paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+    _shareView.frame = CGRectMake(160,_paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+    _discussView.frame = CGRectMake(240,_paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+}
+
+#pragma mark - 根据具体信息调整Cell实际高度
++(CGFloat)cellHeight:(DNWPaperData *)paperData{
+    
+    NSDictionary * attributedDic = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:15.0],NSFontAttributeName, nil];
+    CGRect newPaperTextRect = [paperData.paperText boundingRectWithSize:CGSizeMake(PaperTextLabel_Width, 20000) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributedDic context:nil];
+    
+    return newPaperTextRect.size.height + 15 + IconView_Width_Height + 40;
+
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

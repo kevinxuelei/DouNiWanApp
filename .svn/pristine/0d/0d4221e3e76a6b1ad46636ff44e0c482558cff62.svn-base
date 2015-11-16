@@ -1,0 +1,107 @@
+//
+//  DNWThirdVideoSubclassViewController.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWThirdVideoSubclassViewController.h"
+#import "DNWVideoPlayView.h"
+#import "DNWThirdData.h"
+#import "HMTMyCustomNetRequest.h"
+#import "DNWWedViewController.h"
+
+@interface DNWThirdVideoSubclassViewController ()
+{
+    DNWVideoPlayView * _DNWVPV;
+    
+}
+@end
+
+@implementation DNWThirdVideoSubclassViewController
+
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+    }
+    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+
+    [super viewWillAppear:animated];
+    
+    [_DNWVPV videoPlayer];
+    [_DNWVPV.videoPlayer.moviePlayer play];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+    
+    NSURL * url = [NSURL URLWithString:_thirdData.mp4_url];
+    _DNWVPV = [[DNWVideoPlayView alloc]initWithFrame:[[UIScreen mainScreen] bounds] url:url string:_thirdData.title];
+    _DNWVPV.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_DNWVPV];
+	[_DNWVPV release];
+    
+    
+    UIBarButtonItem *barButton= [[UIBarButtonItem alloc]initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:self action:@selector(didClickleftBarButtonItemAction)];
+    self.navigationItem.leftBarButtonItem = barButton;
+    [barButton release];
+    self.navigationItem.title = @"逗乐玩视频播放";
+    
+    __block DNWThirdVideoSubclassViewController *Block = self;
+
+    [_DNWVPV changeViewBackGround:^{
+       
+        [Block pushDNWWedViewController:_thirdData.web_url];
+        
+    }];
+    
+    
+    
+}
+
+- (void)pushDNWWedViewController:(NSString *)wed
+{
+    [_DNWVPV.videoPlayer.moviePlayer stop];
+    
+    DNWWedViewController *DNWWViewController = [[DNWWedViewController alloc]init];
+    
+    NSURL * url = [NSURL URLWithString:_thirdData.web_url];
+    DNWWViewController.url = url;
+    
+    
+    [self.navigationController pushViewController:DNWWViewController animated:YES];
+    [DNWWViewController release];
+}
+
+//返回
+- (void)didClickleftBarButtonItemAction
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
+- (void)dealloc
+{
+    RELEASE_SAFELY(_thirdData);
+    [super dealloc];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

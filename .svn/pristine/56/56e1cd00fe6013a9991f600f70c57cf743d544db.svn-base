@@ -1,0 +1,124 @@
+//
+//  DNWEssenceTableView.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-10.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWFirstPageTableView.h"
+#import "DNWFirstCustomCell.h"
+#import "DNWAllDataHandle.h"
+
+
+@implementation DNWFirstPageTableView
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_allDataArray);
+    [super dealloc];
+
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+        
+        self.delegate = self;
+        self.dataSource = self;
+        
+    }
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style{
+
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+
+    }
+    
+    return self;
+
+}
+
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style urlString:(NSString *)urlString{
+    
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+        [[DNWAllDataHandle sharedInstance] getAllPaperDataWithUrl:urlString];
+        [[DNWAllDataHandle sharedInstance] setReposeDataBlock:^(NSMutableArray * dataArray){
+        
+            self.allDataArray = dataArray;
+            [self reloadData];
+            
+        }];
+        self.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        
+    }
+    
+    return self;
+    
+}
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+    // Return the number of sections.
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    // Return the number of rows in the section.
+    return [self.allDataArray count];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    return [DNWFirstCustomCell cellHeight:([(DNWPaperData *)self.allDataArray objectAtIndex:indexPath.row])] + 5;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    DNWFirstCustomCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    // Configure the cell...
+    if (!cell) {
+        
+        cell = [[[DNWFirstCustomCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+        
+    }
+    
+    cell.paperData = (DNWPaperData *)[self.allDataArray objectAtIndex:indexPath.row];
+    
+    return cell;
+}
+
+//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+//
+//    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//
+//}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

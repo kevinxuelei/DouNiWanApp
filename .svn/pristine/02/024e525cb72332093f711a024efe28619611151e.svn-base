@@ -1,0 +1,32 @@
+//
+//  SecondPictureView.h
+//  DouNiWan
+//
+//  Created by apple on 14-5-17.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#import "MJRefresh.h"
+
+@interface SecondPictureView : UITableView<NSURLConnectionDataDelegate,UITableViewDataSource,UITableViewDelegate,MJRefreshBaseViewDelegate>
+
+@property(nonatomic,retain)NSMutableArray  *receiveArray; //网络连接后接收生成的数组
+
+@property(nonatomic,retain)NSMutableArray  *dataArray;    //tabelView上要用的数据
+
+@property(nonatomic,retain)NSMutableData   *receiveData;  //网络请求结束后接受到的数据
+
+@property(nonatomic,retain)NSURLConnection *connection;   //网络连接
+
+@property(nonatomic,retain)NSURLRequest    *request;      //网络请求
+
+@property(nonatomic,retain)MJRefreshHeaderView *header;
+
+@property(nonatomic,retain)MJRefreshFooterView *footer;
+
+@property(nonatomic,copy)NSString * urlStr;
+
+-(id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style url:(NSString *)urlString;
+@end

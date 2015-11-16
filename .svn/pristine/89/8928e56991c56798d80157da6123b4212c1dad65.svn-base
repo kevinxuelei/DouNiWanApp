@@ -1,0 +1,63 @@
+//
+//  DNWCollectDataHandle.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-20.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@class DNWPaperData;
+@class FMDatabase;
+@interface DNWCollectDataHandle : NSObject
+
+/**
+ *  database 定义一个 FMDatabase 对象
+ */
+@property (nonatomic,retain)FMDatabase * database;
+
+/**
+ *  删除段子数据
+ *
+ *  @param paper 段子对象
+ */
+- (void)deletePaperDataFromDataBase:(DNWPaperData *)paper;
+
+/**
+ *  添加段子数据
+ *
+ *  @param paper 段子对象
+ */
+- (void)insertIntoPaperDataWithUserInfoId:(DNWPaperData *)paper;
+
+/**
+ *  查询所有段子数据
+ *
+ *  @return 段子数据所在数组
+ */
+- (NSMutableArray *)selectAllPaperDataFromDataBase;
+
+/**
+ *  根据ID查询段子对象是否已经存在
+ *
+ *  @param  id
+ *
+ *  @return 对应的段子对象
+ */
+- (BOOL)selectPaperDataWithId:(NSString *)ID;
+
+/**
+ *  单例模式
+ *
+ *  @return DNWCollectDataHandle的单例对象
+ */
++ (DNWCollectDataHandle *)shareInstance;
+
+@end
+
+
+
+
+
+

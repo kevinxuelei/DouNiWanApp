@@ -1,0 +1,133 @@
+//
+//  DNWCollectDataHandle.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-20.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWCollectDataHandle.h"
+#import "FMDB.h"
+#import "DNWPaperData.h"
+
+@implementation DNWCollectDataHandle
+
+static DNWCollectDataHandle * _dbHandle = nil;
++ (DNWCollectDataHandle *)shareInstance{
+    
+    @synchronized(self){
+        
+        if (!_dbHandle) {
+            
+            _dbHandle = [[DNWCollectDataHandle alloc]init];
+            
+        }
+    }
+    
+    return _dbHandle;
+}
+
+#pragma mark - 定义一个 FMDatabase 对象
+static FMDatabase * database = nil;
+
+#pragma mark - 获得沙盒文件下Documents路径
+- (NSString *)getDocumentsPath{
+    
+    NSString * documents = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    return documents;
+}
+
+#pragma mark - 
+
+#pragma mark - 打开数据库操作------ databaseWithPath   open
+- (void)openDataBase{
+    
+    if (database) {
+        return;
+    }
+    
+    NSString * DataBasePath = [[self getDocumentsPath] stringByAppendingPathComponent:@"DouLeWan.sqlite"];
+    
+    database = [FMDatabase databaseWithPath:DataBasePath];
+    if (![database open]) {
+        
+        NSLog(@"打开数据库失败");
+    }
+    
+    // 为数据库设置缓存,提高查询效率
+    database.shouldCacheStatements = YES;
+    
+    NSLog(@"打开数据库成功");
+}
+
+#pragma mark - 关闭数据库操作
+- (void)closeDataBase{
+    
+    if (![database close]) {
+        NSLog(@"关闭数据库失败");
+        return;
+    }
+    
+    database = nil;
+    NSLog(@"关闭数据库成功");
+    
+}
+
+#pragma mark - 管理创建表的操作
+- (void)createTable{
+    
+    [self openDataBase];
+    
+    // 判断表是否存在,不存在就创建------ tableExists
+    if (![database tableExists:@"Paper"]) {
+        
+        [database executeUpdate:@"CREATE TABLE Paper(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER)"];
+        
+        NSLog(@"创建表成功");
+    }
+    
+    [self closeDataBase];
+}
+
+#pragma mark - 增加数据操作----- executeUpdate
+- (void)insertIntoDataBase:(DNWPaperData *)paper{
+    
+    [self openDataBase];
+    
+    
+    
+    [self closeDataBase];
+}
+
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

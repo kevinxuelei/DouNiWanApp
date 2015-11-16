@@ -1,0 +1,150 @@
+//
+//  DNWEssenceTableView.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-10.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWFirstPageTableView.h"
+#import "DNWFirstCustomCell.h"
+#import "DNWAllDataHandle.h"
+#import "DNWPaperData.h"
+
+
+@implementation DNWFirstPageTableView
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_allDataArray);
+    //RELEASE_SAFELY(_urlString);
+    Block_release(_pushCommitView);
+    [super dealloc];
+
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+        
+        self.delegate = self;
+        self.dataSource = self;
+        
+    }
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style{
+
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+
+    }
+    
+    return self;
+
+}
+
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style urlString:(NSString *)urlString{
+    
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+        self.allDataArray = [NSMutableArray array];
+        
+        // 通过数据操作类,解析JSON数据,返回数组
+        [[DNWAllDataHandle sharedInstance] getAllPaperDataWithUrl:urlString];
+        [[DNWAllDataHandle sharedInstance] setReposeDataBlock:^(NSMutableArray * dataArray){
+        
+            self.allDataArray = dataArray;
+            
+            // 请求到数据后,一定要刷新tableView,因为空白的Cell出现在你请求数据之前,要手动刷新
+            [self reloadData];
+            
+        }];
+        
+        //  cell之间分割线样式
+        self.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        
+    }
+    
+    return self;
+    
+}
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+    // Return the number of sections.
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    // Return the number of rows in the section.
+    return [self.allDataArray count];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    //  因为不确定文本高度,因此要自动调整文本高度
+    return [DNWFirstCustomCell cellHeight:((DNWPaperData *)[self.allDataArray objectAtIndex:indexPath.row])] + 5;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    DNWFirstCustomCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    // Configure the cell...
+    if (!cell) {
+        
+        cell = [[[DNWFirstCustomCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+        
+    }
+    
+    //  在自定义Cell内部完成赋值
+    cell.paperData = (DNWPaperData *)[self.allDataArray objectAtIndex:indexPath.row];
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    DNWPaperData * paperData = [self.allDataArray objectAtIndex:indexPath.row];
+    
+    // 选中Cell时候,推出评论详情页面,传入相对应的评论URL
+    if (_pushCommitView) {
+        
+        _pushCommitView(paperData.commentUrl);
+        
+    }
+    
+    
+    
+    
+    
+
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

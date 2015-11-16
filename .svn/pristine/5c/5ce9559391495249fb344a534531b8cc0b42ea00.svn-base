@@ -1,0 +1,241 @@
+//
+//  DNWFirstCusomCell.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#define IconView_MarginX 5
+#define IconView_MarginY 5
+#define IconView_Width_Height   40
+
+#define NameLabel_MarginY 5
+#define NameLabel_MarginLeft 5
+#define NameLabel_Width  100
+#define NameLabel_Height  20
+
+#define TimeLabel_MarginTop 0
+#define TimeLabel_MarginLeft 10
+#define TimeLabel_Width  100
+#define TimeLabel_Height  20
+
+#define collectButton_MarginY 5
+#define collectButton_X  270
+#define collectButton_Width_Height 45
+
+#define PaperTextLabel_MarginLeft 5
+#define PaperTextLabel_MarginTop 5
+#define PaperTextLabel_Width  310
+#define PaperTextLabel_Height 100
+
+#import "DNWFirstCustomCell.h"
+#import "DNWBottomLabelView.h"
+#import "DNWPaperData.h"
+#import "UIImageView+WebCache.h"
+
+@implementation DNWFirstCustomCell
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_paperData);
+    [super dealloc];
+}
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code
+        
+        [self createCustomCellView];
+        //self.backgroundColor = [UIColor redColor];
+        
+    }
+    return self;
+}
+
+- (void)createCustomCellView{
+
+    _profileImageView = [[UIImageView alloc] initWithFrame:CGRectMake(IconView_MarginX, IconView_MarginY, IconView_Width_Height, IconView_Width_Height)];
+    _profileImageView.backgroundColor = [UIColor redColor];
+     [self.contentView addSubview:_profileImageView];
+    [_profileImageView release];
+    
+    float nx = IconView_MarginX + IconView_Width_Height + NameLabel_MarginLeft;
+    _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(nx, NameLabel_MarginY, NameLabel_Width, NameLabel_Height)];
+    _nameLabel.font = [UIFont systemFontOfSize:10.0];
+    [self addSubview:_nameLabel];
+    [_nameLabel release];
+    
+    float px = nx;
+    float py = NameLabel_MarginY + NameLabel_Height + TimeLabel_MarginTop;
+    _passTimeLabel = [[UILabel alloc] initWithFrame:CGRectMake(px, py, TimeLabel_Width, TimeLabel_Height)];
+    _passTimeLabel.font = [UIFont systemFontOfSize:10.0];
+    [self addSubview:_passTimeLabel];
+    [_passTimeLabel release];
+    
+    _collectButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _collectButton.frame = CGRectMake(collectButton_X, collectButton_MarginY, collectButton_Width_Height, collectButton_Width_Height);
+    [_collectButton setTitle:@"收藏" forState:UIControlStateNormal];
+    [self addSubview:_collectButton];
+    
+    float ty = py + TimeLabel_Height + PaperTextLabel_MarginTop;
+    _paperTextLabel = [[UILabel alloc] initWithFrame:CGRectMake(PaperTextLabel_MarginLeft, ty, PaperTextLabel_Width, PaperTextLabel_Height)];
+    _paperTextLabel.font = [UIFont systemFontOfSize:15.0];
+    _paperTextLabel.numberOfLines = 0;
+    _paperTextLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    [self addSubview:_paperTextLabel];
+    [_paperTextLabel release];
+
+    _praiseView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_praiseView];
+    [_praiseView release];
+    
+    
+    _hateView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_hateView];
+    [_hateView release];
+    
+
+    [self createShareView];
+    
+    
+    _discussView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_discussView];
+    [_discussView release];
+
+}
+
+#pragma mark - 分享视图
+- (void)createShareView{
+
+    _shareView = [[DNWBottomLabelView alloc] init];
+    [self addSubview:_shareView];
+    [_shareView release];
+    
+    //  实现分享
+    [_shareView setPassShareBlock:^(){
+    
+        /**
+         *	@brief	创建分享内容对象，根据以下每个字段适用平台说明来填充参数值
+         *
+         *	@param 	content 	分享内容（新浪、腾讯、网易、搜狐、豆瓣、人人、开心、有道云笔记、facebook、twitter、邮件、打印、短信、微信、QQ、拷贝）
+         *	@param 	defaultContent 	默认分享内容（新浪、腾讯、网易、搜狐、豆瓣、人人、开心、有道云笔记、facebook、twitter、邮件、打印、短信、微信、QQ、拷贝）
+         *	@param 	image 	分享图片（新浪、腾讯、网易、搜狐、豆瓣、人人、开心、facebook、twitter、邮件、打印、微信、QQ、拷贝）
+         *	@param 	title 	标题（QQ空间、人人、微信、QQ）
+         *	@param 	url 	链接（QQ空间、人人、instapaper、微信、QQ）
+         *	@param 	description 	主体内容（人人）
+         *	@param 	mediaType 	分享类型（QQ、微信）
+         *
+         *	@return	分享内容对象
+         */
+        //  拼接段子的内容和网页链接
+        NSString * content = [[_paperData.paperText stringByAppendingString:_paperData.commentUrl] stringByAppendingString:@"欢迎关注我的技术博客http://blog.csdn.net/hmt20130412"];
+        id<ISSContent> publishContent = [ShareSDK content:content
+                                           defaultContent:@"这个人比较懒,目前什么都木有写"
+                                                    image:nil
+                                                    title:@"逗乐玩"
+                                                      url:@"http://blog.csdn.net/hmt20130412"
+                                              description:[_paperData.paperText stringByAppendingString:@"欢迎关注我的技术博客http://blog.csdn.net/hmt20130412"]
+                                                mediaType:SSPublishContentMediaTypeText];
+        
+        [ShareSDK showShareActionSheet:nil
+                             shareList:nil
+                               content:publishContent
+                         statusBarTips:YES
+                           authOptions:nil
+                          shareOptions: nil
+                                result:^(ShareType type, SSResponseState state, id<ISSPlatformShareInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+                                    if (state == SSResponseStateSuccess)
+                                    {
+                                        NSLog(@"分享成功");
+                                        
+                                        _shareView.numberLabel.text = [NSString stringWithFormat:@"%i",[_paperData.shareNumber intValue] + 1];
+                                        
+                                    }
+                                    else if (state == SSResponseStateFail)
+                                    {
+                                        NSLog(@"分享失败,错误码:%d,错误描述:%@", [error errorCode], [error errorDescription]);
+                                    }
+                                }];
+        
+        
+        
+        /**
+         *	@brief	一键分享内容
+         *
+         *	@param 	content 	内容对象
+         *	@param 	shareList 	平台类型列表（邮件、短信、微信、QQ、打印、拷贝除外） 平台类型是一个枚举------->ShareType
+         *	@param 	authOptions 	授权选项，用于指定接口在需要授权时的一些属性（如：是否自动授权，授权视图样式等）,设置未nil则表示采用默认选项
+         *  @param  statusBarTips   状态栏提示
+         *	@param 	result 	返回事件
+         */
+        /*
+         [ShareSDK oneKeyShareContent:publishContent shareList:@[[NSString stringWithFormat:@"%i",ShareTypeSinaWeibo]] authOptions:nil shareOptions:nil statusBarTips:YES result:^(ShareType type, SSResponseState state, id<ISSPlatformShareInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+         if (state == SSResponseStateSuccess)
+         {
+         NSLog(@"分享成功");
+         }
+         else if (state == SSResponseStateFail)
+         {
+         NSLog(@"分享失败,错误码:%d,错误描述:%@", [error errorCode], [error errorDescription]);
+         }
+         }];*/
+
+    }];
+}
+
+
+#pragma mark - 用传入的数据对象给自定义Cell完成赋值
+- (void)setPaperData:(DNWPaperData *)paperData{
+
+    if (_paperData != paperData) {
+        
+        [_paperData release];
+        _paperData = [paperData retain];
+        
+    }
+    
+    //  完成赋值
+    [_profileImageView setImageWithURL:[NSURL URLWithString:paperData.hostImageUrl] placeholderImage:nil];
+    _nameLabel.text               = paperData.hostName;
+    _passTimeLabel.text           = paperData.passTime;
+    _paperTextLabel.text          = paperData.paperText;
+    _praiseView.numberLabel.text  = paperData.favouriteNumber;
+    _hateView.numberLabel.text    = paperData.hateNumber;
+    _shareView.numberLabel.text   = paperData.shareNumber;
+    _discussView.numberLabel.text = paperData.discussNumber;
+    
+    //  自定义Cell高度
+    NSDictionary * attributedDic = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:15.0],NSFontAttributeName, nil];
+    CGRect newPaperTextRect = [paperData.paperText boundingRectWithSize:CGSizeMake(_paperTextLabel.frame.size.width, 20000) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributedDic context:nil];
+    CGRect oldPaperTextRect = _paperTextLabel.frame;
+    oldPaperTextRect.size.height = newPaperTextRect.size.height;
+    _paperTextLabel.frame = oldPaperTextRect;
+    
+    //  调整Text文本下面控件的问题,解决Cell重用问题
+    _praiseView.frame = CGRectMake(0, _paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+    _hateView.frame = CGRectMake(80, _paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+    _shareView.frame = CGRectMake(160,_paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+    _discussView.frame = CGRectMake(240,_paperTextLabel.frame.size.height + 15 + IconView_Width_Height, 80, 40);
+}
+
+#pragma mark - 根据具体信息调整Cell实际高度
++(CGFloat)cellHeight:(DNWPaperData *)paperData{
+    
+    NSDictionary * attributedDic = [NSDictionary dictionaryWithObjectsAndKeys:[UIFont systemFontOfSize:15.0],NSFontAttributeName, nil];
+    CGRect newPaperTextRect = [paperData.paperText boundingRectWithSize:CGSizeMake(PaperTextLabel_Width, 20000) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributedDic context:nil];
+    
+    return newPaperTextRect.size.height + 15 + IconView_Width_Height + 40;
+
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

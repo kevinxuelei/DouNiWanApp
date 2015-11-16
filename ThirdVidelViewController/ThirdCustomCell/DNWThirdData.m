@@ -1,0 +1,62 @@
+//
+//  DNWThirdData.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-12.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWThirdData.h"
+
+@implementation DNWThirdData
+
+/**
+ *Id
+ * 视频网址 mp4_url
+ * 图片地址 pic
+ * 图片的高 pic_h
+ * 图片的格式 pic_t
+ * 图片的宽 pic_w
+ * 上传时间 timeStr
+ * 视频的解说 title
+ * 视频网页模式 web_url
+ */
+
+
+- (void)dealloc
+{
+    RELEASE_SAFELY(_Id);
+    RELEASE_SAFELY(_mp4_url);
+    RELEASE_SAFELY(_pic);
+    RELEASE_SAFELY(_pic_h);
+    RELEASE_SAFELY(_cTime);
+    RELEASE_SAFELY(_pic_w);
+    RELEASE_SAFELY(_timeStr);
+    RELEASE_SAFELY(_title);
+    RELEASE_SAFELY(_web_url);
+    RELEASE_SAFELY(_uname);
+    [super dealloc];
+}
+
+//初始化实现
+- (id)initWithNSDictionary:(NSDictionary *)dic
+{
+    self = [super init];
+    if (self) {
+        self.Id = [dic objectForKey:@"id"];
+        self.mp4_url = [dic objectForKey:@"mp4_url"];
+        self.pic = [dic objectForKey:@"pic"];
+        self.pic_h = [dic objectForKey:@"pic_h"];
+        self.cTime = [dic objectForKey:@"cTime"];
+        self.pic_w = [dic objectForKey:@"pic_w"];
+        self.timeStr = [dic objectForKey:@"timeStr"];
+        self.title = [dic objectForKey:@"title"];
+        self.web_url = [dic objectForKey:@"web_url"];
+    }
+    return self;
+    
+}
+
+
+
+@end

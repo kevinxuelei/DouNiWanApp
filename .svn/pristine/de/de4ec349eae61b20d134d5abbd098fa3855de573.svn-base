@@ -1,0 +1,174 @@
+//
+//  SecondPictureView.m
+//  DouNiWan
+//
+//  Created by apple on 14-5-17.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "SecondPictureView.h"
+#import "DNWSecondViewTableViewCell.h"
+#import "DNWOneCellDataForSecondView.h"
+#import "MJRefreshBaseView.h"
+
+@implementation SecondPictureView
+-(void)dealloc
+{
+    RELEASE_SAFELY(_dataArray);
+    RELEASE_SAFELY(_receiveData);
+    RELEASE_SAFELY(_connection);
+    RELEASE_SAFELY(_request);
+    RELEASE_SAFELY(_receiveArray);
+    RELEASE_SAFELY(_urlStr);
+    RELEASE_SAFELY(_header);
+    RELEASE_SAFELY(_footer);
+    [super dealloc];
+}
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+    }
+    return self;
+}
+-(id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style url:(NSString *)urlString
+{
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        self.dataSource = self;
+        self.delegate = self;
+        self.dataArray = [NSMutableArray array];
+//        [self startRequestWithURLString:urlString];
+        self.header = [MJRefreshHeaderView header];//创建下拉视图
+        self.header.scrollView = self;
+        self.header.delegate = self;
+        self.footer = [MJRefreshFooterView footer];//创建上拉视图
+        self.footer.scrollView = self;
+        self.footer.delegate = self;
+        self.urlStr = urlString;//网址字符串
+        [self startRequestWithURLString:self.urlStr];
+
+
+    }
+    return self;
+}
+- (void)startRequestWithURLString:(NSString *)URLString
+{
+    //创建URL
+    NSURL * url = [NSURL URLWithString:[URLString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    //网络请求
+    
+    self.request = [NSURLRequest requestWithURL:url];
+    
+    //网络连接
+    self.connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+
+    self.receiveData = [NSMutableData data];
+}
+-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    [self.receiveData appendData:data];
+}
+-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    NSMutableDictionary * dic = [NSJSONSerialization JSONObjectWithData:self.receiveData options:NSJSONReadingMutableContainers error:nil];
+
+    self.receiveArray = [dic objectForKey:@"list"];
+
+    [self.dataArray addObjectsFromArray:self.receiveArray];
+
+    [self reloadData];
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    NSLog(@"");
+}
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    return [self.dataArray count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    static NSString *CellIdentifier = @"Cell";
+    DNWSecondViewTableViewCell *cell =[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (!cell) {
+        cell = [[[DNWSecondViewTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+    }
+    NSMutableDictionary * dic = [self.dataArray objectAtIndex:indexPath.row];
+    DNWOneCellDataForSecondView * cellData = [[DNWOneCellDataForSecondView alloc]initWithDictionary:dic];
+    [cell initWith:cellData];
+    return cell;
+    
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSMutableDictionary *dic = [self.dataArray objectAtIndex:indexPath.row];
+    //区分不同row上的cell
+    DNWSecondViewTableViewCell * cell = [[DNWSecondViewTableViewCell alloc]init];
+    DNWOneCellDataForSecondView * data = [[DNWOneCellDataForSecondView alloc]initWithDictionary:dic];
+    return  [cell returnRowHighWith:data];
+    
+}
+#pragma mark - 刷新控件的代理方法
+#pragma mark 开始进入刷新状态
+- (void)refreshViewBeginRefreshing:(MJRefreshBaseView *)refreshView
+{
+    [self.connection cancel];
+    //下拉刷新
+    if ([refreshView isKindOfClass:_header.class]) {
+        [self.dataArray removeAllObjects];
+        [self startRequestWithURLString:self.urlStr];
+    }
+    //上拉加载更多
+    else{
+
+        [self startRequestWithURLString:self.urlStr];
+        
+    }
+    
+    
+    [self performSelector:@selector(doneWithView:) withObject:refreshView afterDelay:0];
+}
+#pragma mark 刷新表格并且结束正在刷新状态
+- (void)doneWithView:(MJRefreshBaseView *)refreshView
+{
+    //    //(最好在刷新表格后调用)调用endRefreshing可以结束刷新状态
+    //    if ([refreshView isKindOfClass:_footer.class]) {
+    //        [self.dataArray addObjectsFromArray:_receiveArray];
+    //    }else{
+    //        self.dataArray = _receiveArray;
+    //    }
+    
+    //    [self.tableView reloadData];
+    //
+    [refreshView endRefreshing];
+    
+}
+
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

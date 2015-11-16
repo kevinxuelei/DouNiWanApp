@@ -1,0 +1,103 @@
+//
+//  DNWAllDataHandle.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-11.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWAllDataHandle.h"
+#import "HMTMyCustomNetRequest.h"
+#import "DNWPaperData.h"
+
+@interface DNWAllDataHandle (){
+
+    HMTMyCustomNetRequest * _request;
+
+}
+
+@end
+
+@implementation DNWAllDataHandle
+
+- (void)dealloc{
+
+    Block_release(_reposeDataBlock);
+    [super dealloc];
+
+}
+
+static  DNWAllDataHandle * shareDataHandle = nil;
++(DNWAllDataHandle *)sharedInstance{
+    
+    @synchronized(self){
+        
+        if(shareDataHandle == nil){
+            
+            shareDataHandle = [[self alloc] init] ;
+        }
+    }
+    
+    return shareDataHandle;
+}
+
+- (void)getAllPaperDataWithUrl:(NSString *)urlString{
+
+    NSMutableArray * allPaperArray = [NSMutableArray array];
+    
+    _request = [[HMTMyCustomNetRequest alloc] init];
+    
+    [_request requestForGETWithUrl:urlString];
+    
+    [_request setFinishLoadBlock:^(NSData * date){
+    
+        NSDictionary * dic = [NSJSONSerialization JSONObjectWithData:date options:NSJSONReadingMutableContainers error:nil];
+        
+        NSArray * listArray = [dic objectForKey:@"list"];
+        
+        for (int i = 0; i < [listArray count]; i++) {
+            
+            DNWPaperData * paper = [[DNWPaperData alloc] initWithDictionary:[listArray objectAtIndex:i]];
+            [allPaperArray addObject:paper];
+            [paper release];
+            
+        }
+        
+        // 数据请求完成后,利用一个block返回数据给tableView赋值
+        if (_reposeDataBlock) {
+            
+            _reposeDataBlock(allPaperArray);
+        }
+        
+
+    }];
+    
+}
+
+
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

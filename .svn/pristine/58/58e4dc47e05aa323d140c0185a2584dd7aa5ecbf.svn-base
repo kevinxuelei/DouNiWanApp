@@ -1,0 +1,181 @@
+//
+//  SecondPictureView.m
+//  DouNiWan
+//
+//  Created by apple on 14-5-17.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "SecondPictureView.h"
+#import "DNWSecondViewTableViewCell.h"
+#import "DNWOneCellDataForSecondView.h"
+#import "MJRefreshBaseView.h"
+#import "DNWAllDataHandle.h"
+#import "HMTMyCustomNetRequest.h"
+
+
+
+@implementation SecondPictureView
+-(void)dealloc
+{
+    RELEASE_SAFELY(_dataArray);
+    RELEASE_SAFELY(_receiveData);
+    RELEASE_SAFELY(_connection);
+    RELEASE_SAFELY(_request);
+    RELEASE_SAFELY(_receiveArray);
+    RELEASE_SAFELY(_urlStr);
+    RELEASE_SAFELY(_frontString);
+    RELEASE_SAFELY(_backString);
+    [_header free];
+    [_footer free];
+    [super dealloc];
+}
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+    }
+    return self;
+}
+#pragma mark - 实现一个tableView多用的初始化方法
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style urlString:(NSString *)urlString{
+    
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+        self.dataArray = [NSMutableArray array];
+        self.receiveArray = [NSMutableArray array];
+        
+        // 通过数据操作类,解析JSON数据,返回数组
+        [[DNWAllDataHandle sharedInstance] getAllImageDataWithUrl:urlString];
+        __block SecondPictureView * otherSelf = self;
+        [[DNWAllDataHandle sharedInstance] setReposeImageDataBlock:^(NSMutableArray * dataArray){
+            
+            otherSelf.dataArray = dataArray;
+            // 请求到数据后,一定要刷新tableView,因为空白的Cell出现在你请求数据之前,要手动刷新
+            [otherSelf reloadData];
+            
+        }];
+        //  cell之间分割线样式
+        self.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        [self refreshFromHeadViewOfBlock];
+        [self refreshFromFootViewOfBlock];
+    }
+    
+    return self;
+    
+}
+
+#pragma mark - 下拉刷新
+- (void)refreshFromHeadViewOfBlock{
+    
+    _header = [MJRefreshHeaderView header];
+    _header.scrollView = self;
+    
+    __block SecondPictureView * otherSelf = self;
+    [_header setBeginRefreshingBlock:^(MJRefreshBaseView * refreshView){
+        self.page = 1;
+
+        NSString * urlString = [[otherSelf.frontString stringByAppendingString:[NSString stringWithFormat:@"%i",self.page]] stringByAppendingString:otherSelf.backString];
+        NSLog(@"%@",urlString);
+        [[DNWAllDataHandle sharedInstance] getAllImageDataWithUrl:urlString];
+        [[DNWAllDataHandle sharedInstance]setReposeImageDataBlock:^(NSMutableArray * dataArray){
+            
+            otherSelf.receiveArray = dataArray;
+            
+            otherSelf.dataArray = [NSMutableArray arrayWithArray:dataArray];
+            
+            [otherSelf reloadData];
+            // 结束刷新
+            [refreshView endRefreshing];
+            
+        }];
+    }];
+    
+    [_header setEndStateChangeBlock:^(MJRefreshBaseView * refreshView){
+
+        self.receiveArray = [NSMutableArray array];
+        
+    }];
+    
+}
+#pragma mark - 上拉加载
+- (void)refreshFromFootViewOfBlock{
+    
+    _footer = [MJRefreshFooterView footer];
+    _footer.scrollView = self;
+    
+    __block SecondPictureView * otherSelf = self;
+    [_footer setBeginRefreshingBlock:^(MJRefreshBaseView * refreshView){
+        ++self.page;
+        NSString * urlString = [[otherSelf.frontString stringByAppendingString:[NSString stringWithFormat:@"%i",self.page]] stringByAppendingString:otherSelf.backString];
+        [[DNWAllDataHandle sharedInstance] getAllImageDataWithUrl:urlString];
+        [[DNWAllDataHandle sharedInstance] setReposeImageDataBlock:^(NSMutableArray * dataArray){
+            otherSelf.receiveArray = dataArray;
+            for (int i = 0; i < [self.receiveArray count]; i++) {
+                [otherSelf.dataArray addObject:[self.receiveArray objectAtIndex:i]];
+            }
+            [otherSelf reloadData];
+            // 结束刷新
+            [refreshView endRefreshing];
+        }];
+    }];
+    
+    [_footer setEndStateChangeBlock:^(MJRefreshBaseView * refreshView){
+        
+        self.receiveArray = [NSMutableArray array];
+        
+    }];
+    
+    
+    
+}
+
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [self.dataArray count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    _cell =[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (!_cell) {
+        _cell = [[[DNWSecondViewTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+    }
+    DNWOneCellDataForSecondView * cellData = [self.dataArray objectAtIndex:indexPath.row];
+    
+    [_cell initWith:cellData];
+    return _cell;
+    
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    _cell = [[DNWSecondViewTableViewCell alloc]init];
+    DNWOneCellDataForSecondView * data = [self.dataArray objectAtIndex:indexPath.row];
+    return  [_cell returnRowHighWith:data];
+    
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

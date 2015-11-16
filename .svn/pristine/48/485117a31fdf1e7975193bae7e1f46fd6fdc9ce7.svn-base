@@ -1,0 +1,53 @@
+//
+//  DNWWeatherDataHandle.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-13.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
+
+@class DNWWeatherData;
+typedef void(^PassWeatherData)(DNWWeatherData *);
+
+/**
+ *  天气详情Model类
+ */
+@interface DNWWeatherData : NSObject<CLLocationManagerDelegate>
+
+/**
+ *     temperatureLow      最低温度
+ *     temperatureHeight   最高温度
+ *     cityName            城市名字
+ *     cityNamePY          城市名字拼音
+ *     stateDetailed       天气状况汉字描述
+ *     stateImage1         天气状况图片1
+ *     stateImage2         天气状况图片2
+ *     windState           风力状况
+ *     stateImageUrl1      天气状况图片1的请求地址1
+ *     stateImageUrl2      天气状况图片1的请求地址2
+ */
+
+@property (nonatomic,copy)NSString * temperatureLow;
+@property (nonatomic,copy)NSString * temperatureHeight;
+@property (nonatomic,copy)NSString * cityName;
+@property (nonatomic,copy)NSString * cityNamePY;
+@property (nonatomic,copy)NSString * stateDetailed;
+//@property (nonatomic,copy)NSString * stateImage1;
+//@property (nonatomic,copy)NSString * stateImage2;
+@property (nonatomic,copy)NSString * windState;
+@property (nonatomic,copy)NSURL * stateImageUrl1;
+@property (nonatomic,copy)NSURL * stateImageUrl2;
+
+
+/**
+ *  locationManage     定位操作对象
+ *  passWeatherData    用来传值的block对象
+ */
+@property (nonatomic,retain) CLLocationManager * locationManage;
+@property (nonatomic,copy) PassWeatherData passWeatherData;
+
+
+@end

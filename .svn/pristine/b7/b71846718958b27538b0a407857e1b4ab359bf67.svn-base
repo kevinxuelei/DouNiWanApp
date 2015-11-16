@@ -1,0 +1,293 @@
+//
+//  DNWThirdVideoViewController.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWThirdVideoViewController.h"
+#import "DNWThirdCustomCell.h"
+#import "DNWThirdVideoSubclassViewController.h"
+#import "DNWAllDataHandle.h"
+#import "DNWThirdData.h"
+#import "UIImageView+WebCache.h"
+#import "HMTMyCustomNetRequest.h"
+#import "MJRefresh.h"
+
+
+#define VoidURL   @"http://xiaoliao.sinaapp.com/index.php/Api366/index/cid/video/p/1/markId/0/date/"
+#define VoidURL2  @"http://xiaoliao.sinaapp.com/index.php/Api368/index/cid/video/lastTime/%@"
+
+@interface DNWThirdVideoViewController ()<MJRefreshBaseViewDelegate>
+{
+    MJRefreshFooterView *footer;//设定上拉加载更多(使用第三方进行刷新)
+    MJRefreshHeaderView *header;//设定下拉刷新(使用第三方MJ进行刷新)
+    DNWThirdCustomCell *cell11;
+}
+@end
+
+@implementation DNWThirdVideoViewController
+
+- (id)initWithStyle:(UITableViewStyle)style
+{
+    self = [super initWithStyle:style];
+    if (self) {
+        // Custom initialization
+#pragma mark -初始化获取数据---
+     [[DNWAllDataHandle sharedInstance]getAllThirdDataWithUrl:VoidURL];
+     [[DNWAllDataHandle sharedInstance]setReposeVideoDataBlock:^(NSMutableArray *allVideoDataArray){
+         self.allVideoDataArray = allVideoDataArray; //用数组接收
+         self.thirdDataCTime=[_allVideoDataArray objectAtIndex:14]; //获取数组中第十五个数据的cTime
+         self.cTimeString = _thirdDataCTime.cTime;
+         [self.tableView reloadData];//刷新页面展示到页面上
+         
+        }];
+    }
+    return self;
+}
+
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.navigationItem.title = @"视频";//设置title
+
+#pragma mark----上拉加载(初始化)---------
+    footer = [MJRefreshFooterView footer];
+    footer.scrollView = self.tableView;
+    footer.delegate = self;
+    
+#pragma mark----下拉刷新(初始化)---------
+    header = [MJRefreshHeaderView header];
+    header.scrollView = self.tableView;
+    header.delegate = self;
+    
+}
+
+- (BOOL)shouldAutorotate
+{
+    return YES;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark -----显示有多少个区
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+#pragma mark -----每个区有多少行--------
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [_allVideoDataArray count];
+}
+
+#pragma mark-----设置行高(自适应行高)----
+- (CGFloat )tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    _thirdData = [_allVideoDataArray objectAtIndex:indexPath.row];
+    return [DNWThirdCustomCell cellHight:_thirdData];
+}
+
+#pragma mark-----创建cell--------
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    _thirdData = [_allVideoDataArray objectAtIndex:indexPath.row];
+
+    static NSString *CellIdentifier = @"Cell";
+    
+    cell11 = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+   // DNWThirdCustomCell *cell = nil;
+    if (!cell11) {
+        cell11 = [[[DNWThirdCustomCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+    }
+
+    cell11.thirdData = _thirdData;//给cell赋值显示在cell上
+    /**
+     *  关闭cell的交互只能实现Button实现方法
+     */
+    [cell11 setSelectionStyle:UITableViewCellSelectionStyleNone];
+    /**
+     *  Block的回调实现push出DNWThirdVideoSubclassViewController类
+     */
+    __block DNWThirdVideoViewController *myVC = self;
+    [cell11 changBackGround:^{
+        
+        [myVC pushDNWThirdVideoSubclassViewController:indexPath];
+        
+    }];
+    
+    return cell11;
+}
+
+#pragma mark-----当cell滚出试图时关闭cell上的方法(实现)------
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+   
+    
+    
+    [cell11.player pause];
+    
+    [cell11.bottom removeFromSuperview];
+    
+    [cell11.playerLayer removeFromSuperlayer];
+    
+}
+
+#pragma mark-----点击cell实现这个方法(实现)----
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [cell11.player pause];
+    
+    [cell11.bottom removeFromSuperview];
+    
+    [cell11.playerLayer removeFromSuperlayer];
+    
+}
+
+#pragma mark-----开始进入刷新状态就会调用----
+- (void)refreshViewBeginRefreshing:(MJRefreshBaseView *)refreshView
+{
+    if ([refreshView isMemberOfClass:[MJRefreshFooterView class]]) {
+        
+        [self performSelector:@selector(doneWithView:) withObject:refreshView afterDelay:1];
+        
+    }else if([refreshView isMemberOfClass:[MJRefreshHeaderView class]]){
+        
+        [self performSelector:@selector(shuaxinView:) withObject:refreshView afterDelay:1];
+    }
+    
+}
+
+#pragma mark-----下拉刷新(实现)----
+- (void)shuaxinView:(MJRefreshBaseView *)refeshView
+{
+    // 结束刷新状态
+    [[DNWAllDataHandle sharedInstance]getAllThirdDataWithUrl:VoidURL];
+    [[DNWAllDataHandle sharedInstance]setReposeVideoDataBlock:^(NSMutableArray *allVideoDataArray){
+        self.allVideoDataArray = allVideoDataArray;
+        /**
+         *  刷新页面
+         *  结束刷新
+         */
+         [self.tableView reloadData];
+         [refeshView endRefreshing];
+        
+    }];
+    
+}
+
+#pragma mark-----上拉加载更多(实现)----
+- (void)doneWithView:(MJRefreshBaseView *)refreshView
+{
+    
+    NSString *string =[NSString stringWithFormat:VoidURL2,_cTimeString];    
+    [[DNWAllDataHandle sharedInstance]getallThirdAddDataWithUrl:string];
+    [[DNWAllDataHandle sharedInstance]setReposeThirdVideoAddDataBlock:^(NSMutableArray *allVideoDataArray){
+        /**
+         *  获取加载数据
+         *  获得数据源中需要的数据
+         *  把得到的数据存到数组中展示到页面上
+         */
+        self.array = allVideoDataArray;
+        self.thirdDataCTime=[_array objectAtIndex:14];
+        self.cTimeString = _thirdDataCTime.cTime;
+        for (int i=0; i<[_array count]; i++) {
+            [_allVideoDataArray addObject:[_array objectAtIndex:i]];
+        }
+        /**
+         *  刷新页面
+         *  结束刷新
+         */
+        [self.tableView reloadData];
+        [refreshView endRefreshing];
+    }];
+}
+
+#pragma mark-----推出DNWThirdVideoSubclassViewController实现过程----
+- (void)pushDNWThirdVideoSubclassViewController:(NSIndexPath *)indesPath
+{
+    DNWThirdVideoSubclassViewController *ThirdVideoSubclassVC = [[DNWThirdVideoSubclassViewController alloc]init];
+  
+    _thirdData = [_allVideoDataArray objectAtIndex:indesPath.row];
+   
+    ThirdVideoSubclassVC.thirdData = _thirdData ;
+    
+    UINavigationController *rootNC = [[UINavigationController alloc]initWithRootViewController:ThirdVideoSubclassVC];
+    
+    [self presentViewController:rootNC animated:YES completion:nil];
+   
+    [ThirdVideoSubclassVC release];
+}
+
+/**
+ *  释放
+ */
+- (void)dealloc
+{
+    RELEASE_SAFELY(footer);
+    RELEASE_SAFELY(header);
+    RELEASE_SAFELY(_array);
+    RELEASE_SAFELY(_thirdData);
+    RELEASE_SAFELY(_allVideoDataArray);
+    [super dealloc];
+}
+/*
+// Override to support conditional editing of the table view.
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Return NO if you do not want the specified item to be editable.
+    return YES;
+}
+*/
+
+/*
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        // Delete the row from the data source
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    }   
+    else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+    }   
+}
+*/
+
+/*
+// Override to support rearranging the table view.
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+{
+}
+*/
+
+/*
+// Override to support conditional rearranging of the table view.
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Return NO if you do not want the item to be re-orderable.
+    return YES;
+}
+*/
+
+/*
+#pragma mark - Navigation
+
+// In a story board-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+
+ */
+
+@end

@@ -1,0 +1,74 @@
+//
+//  DNWWedViewController.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-13.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWWedViewController.h"
+
+
+@interface DNWWedViewController ()
+{
+    UIWebView *_wedView;
+}
+@end
+
+@implementation DNWWedViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    //self.view.backgroundColor = [UIColor orangeColor];
+	// Do any additional setup after loading the view.
+    
+    
+    _wedView = [[UIWebView alloc]initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:_url];
+    _wedView.delegate = self;
+    [_wedView loadRequest:request];
+    _wedView.scalesPageToFit = YES;
+    [self.view addSubview:_wedView];
+    
+    [_wedView release];
+  
+    UIBarButtonItem *barButton= [[UIBarButtonItem alloc]initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:self action:@selector(didClickWedBarButtonItemAction)];
+    self.navigationItem.leftBarButtonItem = barButton;
+    [barButton release];
+
+    
+}
+
+- (void)didClickWedBarButtonItemAction
+{
+    [self.navigationController popViewControllerAnimated:YES];
+    
+}
+
+
+
+- (void)dealloc
+{
+    RELEASE_SAFELY(_url);
+    [super dealloc];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

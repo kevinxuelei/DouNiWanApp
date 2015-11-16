@@ -1,0 +1,26 @@
+//
+//  DNWEssenceTableView.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-10.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface DNWFirstPageTableView : UITableView<UITableViewDelegate,UITableViewDataSource>
+
+@property (nonatomic,retain)NSMutableArray * allDataArray; // 存储段子对象的数组
+
+/**
+ *  自定义初始化方法
+ *
+ *  @param frame     frame
+ *  @param style     style
+ *  @param urlString 需要显示内容的请求网址
+ *
+ *  @return 所需求的tableView对象
+ */
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style urlString:(NSString *)urlString;
+
+@end

@@ -1,0 +1,142 @@
+//
+//  DNWCustomWeatherView.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWCustomWeatherView.h"
+#import <AddressBook/AddressBook.h>
+
+@interface DNWCustomWeatherView (){
+
+}
+
+@end
+
+@implementation DNWCustomWeatherView
+
+- (void)dealloc{
+    
+    RELEASE_SAFELY(_locationManage);
+    [super dealloc];
+    
+}
+
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+        
+        [self createCustomWeaterView];
+        
+    }
+    return self;
+}
+
+- (void)createCustomWeaterView{
+
+#pragma mark - 天气图像
+    _weatherImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 42)];
+    _weatherImage.backgroundColor = [UIColor blackColor];
+    _weatherImage.userInteractionEnabled = YES;
+    [self addSubview:_weatherImage];
+    [_weatherImage release];
+    
+#pragma mark - 天气温度
+    _temperatureLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 0, 40, 22)];
+    _temperatureLabel.backgroundColor = [UIColor cyanColor];
+    _temperatureLabel.text = @"天气温度";
+    _temperatureLabel.textAlignment = NSTextAlignmentCenter;
+    _temperatureLabel.font = [UIFont systemFontOfSize:7.0];
+    [self addSubview:_temperatureLabel];
+    [_temperatureLabel release];
+
+#pragma mark - 地方名称
+    _loactionNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(40, 22, 40, 20)];
+    _loactionNameLabel.textAlignment = NSTextAlignmentCenter;
+    _loactionNameLabel.font = [UIFont systemFontOfSize:10.0];
+    [self addSubview:_loactionNameLabel];
+    [_loactionNameLabel release];
+    
+#pragma mark - 地图GPS定位
+    [self createGPSMap];
+
+}
+
+- (void)createGPSMap{
+    
+    // 初始化位置服务
+    self.locationManage = [[CLLocationManager alloc]init];
+    
+    // 要求CLLocationManager对象返回全部信息
+    _locationManage.distanceFilter = kCLDistanceFilterNone;
+    
+    // 设置定位精度
+    _locationManage.desiredAccuracy = kCLLocationAccuracyBest;
+    
+    // 设置代理
+    _locationManage.delegate = self;
+    
+    // 开始定位
+    [_locationManage startUpdatingLocation];
+    
+    [_locationManage release];
+    
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations{
+    
+    CLLocation * newLocation = [locations lastObject];
+    // 停止实时定位
+    [_locationManage stopUpdatingLocation];
+    
+    
+    // -----------------------位置反编码------------------------
+    CLGeocoder * geocoder = [[CLGeocoder alloc]init];
+    [geocoder reverseGeocodeLocation:newLocation completionHandler:^(NSArray *placemarks, NSError *error) {
+        
+        for (CLPlacemark * place in placemarks) {
+//            NSLog(@"name = %@",place.name);                                    // 位置名
+//            NSLog(@"thoroughfare = %@",place.thoroughfare);                    // 街道
+//            NSLog(@"subAdministrativeArea = %@",place.subAdministrativeArea);  // 子街道
+//            NSLog(@"locality = %@",place.locality);                            // 市
+//            NSLog(@"subLocality = %@",place.subLocality);                      // 区
+//            NSLog(@"country = %@",place.country);// 国家
+            NSArray *allKeys = place.addressDictionary.allKeys;
+            for (NSString *key in allKeys)
+            {
+//                NSLog(@"key = %@, value = %@",key, place.addressDictionary[key]);
+            }
+#pragma mark - 使用系统定义的字符串直接查询,记得导入AddressBook框架
+//            NSLog(@"kABPersonAddressCityKey = %@", (NSString *)kABPersonAddressCityKey);
+//            NSLog(@"city = %@", place.addressDictionary[(NSString *)kABPersonAddressCityKey]);
+            NSString *city = place.locality;
+            if(city == nil)
+            {
+                city = place.addressDictionary[(NSString *)kABPersonAddressStateKey];
+            }
+            _loactionNameLabel.text = city;
+        }
+        
+    }];
+    
+    NSLOG_FUNCTION;
+    
+}
+
+
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

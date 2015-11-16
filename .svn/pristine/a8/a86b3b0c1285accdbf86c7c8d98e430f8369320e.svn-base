@@ -1,0 +1,175 @@
+//
+//  DNWSecondViewController.m
+//  DouNiWan
+//
+//  Created by apple on 14-5-17.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+#define kDeviceModel [[UIDevice currentDevice] model]
+
+#define jinghua(page) [NSString stringWithFormat:@"http://api.budejie.com/api/api_open.php?c=data&a=list&from=ios&per=20&page=%d&type=10&client=iphone&market=&ver=2.6&device=%@&uid=&sex=&udid=&mac=02:00:00:00:00:00&openudid=131ee15d28c0deb092739505d94cc1afc601eec8&asid=67E2FAF1-18A3-423E-9BF8-4248922D30BA&jbk=0&appname=baisibudejie",page,kDeviceModel]
+
+#define zuixin(page) [NSString stringWithFormat:@"http://api.budejie.com/api/api_open.php?c=data&a=newlist&from=ios&per=20&page=%d&type=10&client=iphone&market=&ver=2.6&device=%@&uid=&sex=&udid=&mac=02:00:00:00:00:00&openudid=131ee15d28c0deb092739505d94cc1afc601eec8&asid=67E2FAF1-18A3-423E-9BF8-4248922D30BA&jbk=0&appname=baisibudejie",page,kDeviceModel]
+
+#define chuanyue(page) [NSString stringWithFormat:@"http://api.budejie.com/api/api_open.php?c=data&a=list&from=ios&per=20&page=%d&type=10&order=timewarp&client=iphone&market=&ver=2.6&device=%@&uid=&sex=&udid=&mac=02:00:00:00:00:00&openudid=131ee15d28c0deb092739505d94cc1afc601eec8&asid=67E2FAF1-18A3-423E-9BF8-4248922D30BA&jbk=0&appname=baisibudejie",page,kDeviceModel]
+
+#import "DNWSecondViewController.h"
+#import "SecondPictureView.h"
+@interface DNWSecondViewController ()
+{
+    UISegmentedControl * _seg;
+    MJRefreshHeaderView *_header;
+    MJRefreshFooterView *_footer;
+    int _pageCount;
+    int _pageCount2;
+    int _pageCount3;
+}
+@end
+
+@implementation DNWSecondViewController
+-(void)dealloc
+{
+    //    RELEASE_SAFELY(_dataArray);
+    //    RELEASE_SAFELY(_connection);
+    //    RELEASE_SAFELY(_request);
+    RELEASE_SAFELY(_chuanYueTableView);
+    RELEASE_SAFELY(_jinghuaTableView);
+    RELEASE_SAFELY(_zuiXinTableView);
+    RELEASE_SAFELY(_scrollView);
+//    RELEASE_SAFELY(_header);
+//    RELEASE_SAFELY(_footer);
+    [super dealloc];
+    
+}
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    //    创建左侧导航栏按钮
+    UIBarButtonItem * leftBarButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemCompose target:self action:@selector(didClickLeftBarButton)];
+    self.navigationItem.leftBarButtonItem = leftBarButton;
+    [leftBarButton release];
+    
+    //    创建导航栏右侧按钮
+    UIBarButtonItem * rightBarButton = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(didClickRightBarButton:)];
+    self.navigationItem.rightBarButtonItem = rightBarButton;
+    [rightBarButton release];
+    
+    //    创建分段控件，添加到导航栏的titleview
+    _seg = [[UISegmentedControl alloc]initWithFrame:CGRectMake(0, 0, 198, 33)];
+    [_seg insertSegmentWithTitle:@"精华" atIndex:0 animated:NO];
+    [_seg insertSegmentWithTitle:@"最新" atIndex:1 animated:NO];
+    [_seg insertSegmentWithTitle:@"穿越" atIndex:2 animated:NO];
+    _seg.multipleTouchEnabled = NO;
+    
+    [_seg addTarget:self action:@selector(selectbutton:) forControlEvents:UIControlEventValueChanged];
+    [_seg setSelectedSegmentIndex:0];
+    
+    self.navigationItem.titleView = _seg;
+    
+       
+    [self createRootScrollView];
+    [self createJingHuaTableView];
+    [self createChuanYueTableView];
+    [self createZuiXinTableView];
+
+    
+}
+#pragma mark - 创建滚动效果视图
+- (void)createRootScrollView{
+    self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
+    self.scrollView.showsHorizontalScrollIndicator = NO;
+    self.scrollView.contentSize = CGSizeMake(ScreenWidth * 3, 0);
+    self.scrollView.pagingEnabled = YES;
+    self.scrollView.bounces = NO;
+    self.scrollView.delegate = self;
+    [self.view addSubview:self.scrollView];
+    [self.scrollView release];
+    
+}
+#pragma mark - 结束滑动,用来同步改变_segmentView对应的selectedSegmentIndex
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    
+    NSInteger nowIndex = scrollView.contentOffset.x / 320.0 ;
+    _seg.selectedSegmentIndex = nowIndex;
+    
+}
+#pragma mark - 创建精华tableView
+- (void)createJingHuaTableView{
+    self.jinghuaTableView = [[SecondPictureView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain url:jinghua(_pageCount)];
+    [self.scrollView addSubview:self.jinghuaTableView];
+    [self.jinghuaTableView release];
+}
+#pragma mark - 创建最新tableView
+- (void)createZuiXinTableView{
+    self.zuiXinTableView = [[SecondPictureView alloc]initWithFrame:CGRectMake(320, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain url:zuixin(_pageCount2) ];
+    [self.scrollView addSubview:self.zuiXinTableView];
+    [self.zuiXinTableView release];
+}
+#pragma mark - 创建随机穿越tableView
+- (void)createChuanYueTableView{
+    self.chuanYueTableView =[[SecondPictureView alloc]initWithFrame:CGRectMake(640, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain url:chuanyue(_pageCount3)];
+    [self.scrollView addSubview:self.chuanYueTableView];
+    [self.chuanYueTableView release];
+}
+
+#pragma mark - 点击导航栏分段控件的方法
+-(void)selectbutton:(UISegmentedControl*)sender
+{
+    //点击不同的分段控件按钮时，把不同的tableView赋值给当前tableViewcontrler的根视图
+    if (sender.selectedSegmentIndex == 1) {
+        if (!self.zuiXinTableView) {
+            [self createZuiXinTableView];
+        }
+    }
+    if (sender.selectedSegmentIndex == 2) {
+        
+        if (!self.chuanYueTableView) {
+            [self createChuanYueTableView];
+        }
+    }
+    // 同步_rootScrollView显示内容
+    NSInteger index = sender.selectedSegmentIndex;
+    [self.scrollView setContentOffset:CGPointMake(ScreenWidth*index, -64) animated:YES];
+
+}
+
+
+//点击导航栏右侧按钮的方法
+-(void)didClickRightBarButton:(UISegmentedControl*)sender
+{
+    //    _pageCount3 = 1;
+    //    [self startRequestWithURLString:chuanyue(_pageCount3)];
+}
+//点击导航栏左侧按钮的方法
+-(void)didClickLeftBarButton
+{
+    
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

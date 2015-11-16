@@ -1,0 +1,57 @@
+//
+//  DNWThirdCustomCell.h
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+@class DNWThirdData;
+typedef void(^myBlock)(void);
+
+@interface DNWThirdCustomCell : UITableViewCell
+
+
+
+@property (nonatomic,retain,readonly) UILabel * introduceLable;//介绍
+
+@property (nonatomic,retain,readonly) UIImageView * picImageView;//图片
+
+@property(nonatomic,retain,readonly) UIImageView *imageButtonView;//图片上按钮的图片按钮
+
+@property (nonatomic,retain,readonly) UIButton *imageButton;//图片按钮
+
+@property (nonatomic,retain,readonly) UILabel * timeLabel;//时间显示
+
+@property (nonatomic,retain,readonly) UIButton * collectButton;//收藏按钮
+@property (nonatomic,retain,readonly) UILabel * collectLabel;//收藏按钮文字
+
+@property (nonatomic,retain,readonly) UIButton * shareButton;//分享按钮
+@property (nonatomic,retain,readonly) UILabel * shareLabel;//分享按钮文字
+
+@property (nonatomic,retain)DNWThirdData *thirdData;
+
+
+@property (nonatomic,assign)int indesPathRow;
+//自适应高度
++ (CGFloat)cellHight:(DNWThirdData *)data;
+
+@property (nonatomic,copy) myBlock block;
+
+- (void)changBackGround:(myBlock)block;
+
+/**
+ *  视频的封装
+ */
+@property(nonatomic,strong)AVPlayer *player;
+@property(nonatomic,strong)UIView *bottom;
+@property(nonatomic,strong)AVPlayerItem *playerItem;
+@property(nonatomic,strong)UISlider *slider;
+@property(nonatomic,strong)AVPlayerLayer *playerLayer;
+//视频的播放
+- (void)PlayOrPause;
+
+
+@end

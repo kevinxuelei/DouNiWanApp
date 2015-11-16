@@ -1,0 +1,113 @@
+//
+//  DNWVideoPlayView.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWVideoPlayView.h"
+#import "DNWWedViewController.h"
+#import <MediaPlayer/MediaPlayer.h>
+@implementation DNWVideoPlayView
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+   
+    if (self) {
+  
+    }
+    return self;
+}
+
+
+- (id)initWithFrame:(CGRect)frame url:(NSURL *)url string:(NSString *)string
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+        [self createSubviews];
+#pragma mark---------视频创建-------
+        _url = url;
+        _string = string;
+        [self playerVideo];
+        _videoDescribeLabel.text = _string;
+    
+    }
+    return self;
+
+}
+
+#pragma mark---------视频播放-------
+- (void)playerVideo
+{
+    _videoPlayer = [[MPMoviePlayerViewController alloc]initWithContentURL:_url];
+    [_videoPlayer.view setFrame:CGRectMake(0, 44, 320, 256)];
+   // [_videoPlayer.moviePlayer setControlStyle:MPMovieControlStyleNone];
+    [_videoPlayer.moviePlayer setControlStyle:MPMovieControlStyleEmbedded];
+    _videoPlayer.moviePlayer.scalingMode = MPMovieScalingModeAspectFit;
+    [self addSubview:_videoPlayer.view];
+    
+    
+}
+
+
+- (void)createSubviews
+{
+    
+    _videoDescribeLabel = [[UILabel alloc]initWithFrame:CGRectMake(20, 330, 280, 187)];
+    [self addSubview:_videoDescribeLabel];
+    [_videoDescribeLabel release];
+    _videoDescribeLabel.textColor =[UIColor orangeColor];
+    //居中(字体排列)
+    _videoDescribeLabel.textAlignment = NSTextAlignmentLeft;
+    //字体大小
+    _videoDescribeLabel.font = [UIFont systemFontOfSize:15];
+    //_videoDescribeLabel.font = [UIFont boldSystemFontOfSize:15];
+    _videoDescribeLabel.numberOfLines = 0;
+    _videoDescribeLabel.lineBreakMode =  NSLineBreakByWordWrapping;
+    
+    
+    
+    _patternButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _patternButton.frame = CGRectMake(250, 300, 70, 30);
+    [self addSubview:_patternButton];
+    [_patternButton setTitle:@"网页模式" forState:UIControlStateNormal];
+    [_patternButton addTarget:self action:@selector(didClickPatterButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    
+}
+
+#pragma mark---------点击推出页面-------
+- (void)didClickPatterButtonAction
+{
+    _block();
+}
+
+- (void)changeViewBackGround:(ViewBlock)block
+{
+    self.block = block;
+}
+
+- (void)dealloc
+{
+    RELEASE_SAFELY(_url);
+    RELEASE_SAFELY(_string);
+    RELEASE_SAFELY(_thirdData);
+    RELEASE_SAFELY(_videoPlayer);
+    Block_release(_block);
+    [super dealloc];
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

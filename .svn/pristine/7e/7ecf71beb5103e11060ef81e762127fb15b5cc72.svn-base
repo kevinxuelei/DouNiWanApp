@@ -1,0 +1,152 @@
+//
+//  DNWUserDeatilInfoViewController.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-17.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWUserDeatilInfoViewController.h"
+#import "DXAlertView.h"
+
+@interface DNWUserDeatilInfoViewController (){
+
+    UITableView * _userInfoTableView;
+    
+}
+
+@property (nonatomic,retain)UIButton * logOutButton;
+
+@end
+
+@implementation DNWUserDeatilInfoViewController
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_logOutButton);
+    [super dealloc];
+
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.navigationItem.title = @"我的资料";
+    
+    _userInfoTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain];
+    _userInfoTableView.delegate = self;
+    _userInfoTableView.dataSource = self;
+    [self.view addSubview:_userInfoTableView];
+    [_userInfoTableView release];
+    
+    [self createTableFooterView];
+    
+    self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:@"个人中心" style:UIBarButtonItemStylePlain target:self action:@selector(didLeftBarButtonItemAction:)]autorelease];
+    
+}
+
+- (void)didLeftBarButtonItemAction:(UIBarButtonItem *)leftBtn{
+
+    [self dismissViewControllerAnimated:YES completion:nil];
+
+}
+
+#pragma mark - 创建tableFooterView,一个Button,退出操作
+- (void)createTableFooterView{
+
+    self.logOutButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _logOutButton.frame = CGRectMake(0, 0, 320, 40);
+    [_logOutButton setTitle:[[@"退出账号(" stringByAppendingString:[_userInfo nickname]] stringByAppendingString:@")"] forState:UIControlStateNormal];
+    [_logOutButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    [_logOutButton addTarget:self action:@selector(didClickLogOutButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    _userInfoTableView.tableFooterView = _logOutButton;
+    
+}
+
+- (void)didClickLogOutButtonAction:(UIButton *)logOutButton{
+
+    DXAlertView * alert = [[DXAlertView alloc] initWithTitle:@"友情提示" contentText:@"是否要注销账号" leftButtonTitle:@"取消" rightButtonTitle:@"确定"];
+    [alert show];
+    alert.rightBlock = ^() {
+        
+        [ShareSDK cancelAuthWithType:ShareTypeSinaWeibo];
+        [self dismissViewControllerAnimated:YES completion:nil];
+        
+    };
+    [alert release];
+
+}
+
+#pragma mark - tableView delegate and datasource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return 10;
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    return 40.0;
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    // Configure the cell...
+    if (!cell) {
+        
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+        
+    }
+    
+    
+    return cell;
+}
+
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

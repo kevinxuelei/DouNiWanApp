@@ -1,0 +1,136 @@
+//
+//  DNWSecondViewTableViewCell.m
+//  DouNiWan
+//
+//  Created by apple on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWSecondViewTableViewCell.h"
+#import "CustomButton.h"
+
+#import "UIImageView+WebCache.h"
+
+
+#define x 10
+#define y 15
+#define y_gap 20
+#define x_gap 10
+#define iconViewWidth 60
+#define iconViewHigth 60
+#define nameLableHigth 20
+#define timeLableHigth 10
+#define titleLableHigh 30
+#define mainImageViewHigh 200
+#define agreebuttonHigh 40
+
+
+@implementation DNWSecondViewTableViewCell
+-(void)dealloc
+{
+    RELEASE_SAFELY(_iconView);
+    RELEASE_SAFELY(_timeLabel);
+    RELEASE_SAFELY(_titleLabel);
+    RELEASE_SAFELY(_nameLabel);
+    RELEASE_SAFELY(_mainImageView);
+    RELEASE_SAFELY(_agreeButton);
+    RELEASE_SAFELY(_disagreeButton);
+    RELEASE_SAFELY(_shareButton);
+    RELEASE_SAFELY(_discussButton);
+    
+    [super dealloc];
+}
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code
+        self.iconView = [[UIImageView alloc]initWithFrame:CGRectMake(x, y,iconViewWidth , iconViewHigth)];
+        _iconView.backgroundColor = [UIColor grayColor];
+        [self addSubview:_iconView];
+        [_iconView release];
+        
+        self.nameLabel = [[UILabel alloc]initWithFrame:CGRectMake(x+iconViewWidth+x_gap, y, self.bounds.size.width-x-x_gap-iconViewWidth-x_gap, nameLableHigth)];
+        _nameLabel.backgroundColor = [UIColor grayColor];
+        [self addSubview:_nameLabel];
+        [_nameLabel release];
+        
+        self.timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(x+iconViewWidth+x_gap, y+nameLableHigth+10, self.bounds.size.width-x-x_gap-iconViewWidth-x_gap, timeLableHigth)];
+        _timeLabel.backgroundColor = [UIColor grayColor];
+        _timeLabel.font = [UIFont systemFontOfSize:12];
+        _timeLabel.numberOfLines = 0;
+        
+        [self addSubview:_timeLabel];
+        [_timeLabel release];
+        
+        self.titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(x, y+iconViewHigth+y_gap, self.bounds.size.width-x-x, titleLableHigh)];
+        _titleLabel.backgroundColor = [UIColor grayColor];
+        _titleLabel.lineBreakMode=NSLineBreakByCharWrapping;
+        _titleLabel.numberOfLines = 0;
+        [self addSubview:_titleLabel];
+        [_titleLabel release];
+        
+        self.mainImageView = [[UIImageView alloc]initWithFrame:CGRectMake(x, y+iconViewHigth+y_gap+titleLableHigh+y_gap, self.bounds.size.width-x-x, mainImageViewHigh)];
+        _mainImageView.backgroundColor = [UIColor grayColor];
+        
+        [self addSubview:_mainImageView];
+        [_mainImageView release];
+        
+        CGFloat buttonWidth = (self.bounds.size.width-x-x)/4;
+        self.agreeButton = [[CustomButton alloc]initWithFrame:CGRectMake(x, y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _agreeButton.backgroundColor = [UIColor grayColor];
+        _agreeButton.tintColor = [UIColor redColor];
+        [self addSubview: _agreeButton];
+        [_agreeButton release];
+        
+        self.disagreeButton = [[CustomButton alloc]initWithFrame:CGRectMake(x+buttonWidth, y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _disagreeButton.backgroundColor = [UIColor orangeColor];
+        [self addSubview:_disagreeButton];
+        [_disagreeButton release];
+        
+        self.shareButton = [[CustomButton alloc]initWithFrame:CGRectMake(x+buttonWidth+buttonWidth, y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _shareButton.backgroundColor = [UIColor blueColor];
+        [self addSubview:_shareButton];
+        [_shareButton release];
+        
+        self.discussButton = [[CustomButton alloc]initWithFrame:CGRectMake(x+buttonWidth*3, y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _discussButton.backgroundColor =[UIColor blackColor];
+        [self addSubview:_discussButton];
+        [_discussButton release];
+        
+        
+        
+        
+    }
+    return self;
+}
+-(void)initWith:(DNWOneCellDataForSecondView*)celldata
+{
+    self.nameLabel.text = celldata.nameString;
+    self.timeLabel.text = celldata.timeString;
+    self.titleLabel.text = celldata.titleString;
+    self.agreeButton.countNumberLabel.text = celldata.agreeCount;
+    self.disagreeButton.countNumberLabel.text = celldata.disagreeCount;
+    self.shareButton.countNumberLabel.text = celldata.shareCount;
+    self.discussButton.countNumberLabel.text = celldata.discussCount;
+    self.agreeButton.imageView.image = [UIImage imageNamed:@"29-heart"];
+    self.disagreeButton.imageView.image = [UIImage imageNamed:@"21-skull"];
+    self.shareButton.imageView.image = [UIImage imageNamed:@"73-radar"];
+    self.discussButton.imageView.image = [UIImage imageNamed:@"09-chat2"];
+    [self.iconView setImageWithURL:[NSURL URLWithString:celldata.iconImageUrl]];
+    [self.mainImageView setImageWithURL:[NSURL URLWithString:celldata.mainImageUrl]];
+    
+}
+- (void)awakeFromNib
+{
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

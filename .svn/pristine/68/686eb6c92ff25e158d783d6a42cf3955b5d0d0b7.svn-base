@@ -1,0 +1,63 @@
+//
+//  DNWFirstCusomCell.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@class DNWBottomLabelView;
+@class DNWPaperData;
+@interface DNWFirstCustomCell : UITableViewCell
+
+/**
+ *  profileImageView 发表人头像
+ *  nameLabel        姓名
+ *  passTimeLabel    发布时间
+ *  collectButton    收藏
+ *  paperTextLabel   段子文本
+ *  praiseView       点赞
+ *  hateView         讨厌
+ *  shareView        分享
+ *  discussView      评论
+ */
+@property (nonatomic,retain,readonly)UIImageView * profileImageView;
+@property (nonatomic,readonly,retain)UILabel     * nameLabel;
+@property (nonatomic,retain,readonly)UILabel     * passTimeLabel;
+@property (nonatomic,readonly,retain)UIButton    * collectButton;
+@property (nonatomic,retain,readonly)UILabel     * paperTextLabel;
+@property (nonatomic,retain,readonly)DNWBottomLabelView * praiseView;
+@property (nonatomic,retain,readonly)DNWBottomLabelView * hateView;
+@property (nonatomic,retain,readonly)DNWBottomLabelView * shareView;
+@property (nonatomic,retain,readonly)DNWBottomLabelView * discussView;
+
+/**
+ * paperData        段子数据对象
+ */
+@property (nonatomic,retain)DNWPaperData * paperData;
+
+/**
+ *  根据text长度自动调整cell高度
+ *
+ *  @param paperData 文本对象
+ *
+ *  @return cell新高度
+ */
++(CGFloat)cellHeight:(DNWPaperData *)paperData;
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+

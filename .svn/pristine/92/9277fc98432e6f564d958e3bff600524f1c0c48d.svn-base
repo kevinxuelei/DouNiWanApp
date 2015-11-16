@@ -1,0 +1,194 @@
+//
+//  DNWThirdCustomCell.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWThirdCustomCell.h"
+
+#import "DNWThirdVideoSubclassViewController.h"
+#import "DNWThirdVideoViewController.h"
+#import "DNWAllDataHandle.h"
+
+#define IntroduceLabel_MarginX 10
+#define IntroduceLabel_MarginY 10
+#define IntroduceLabel_Width   300
+#define IntroduceLabel_Hight   50
+
+#define PicImageView_MarginX   90
+#define PicImageView_MarginY   60
+#define PicImageView_Width     140
+#define PicImageView_Hight     110
+
+#define TimeLabel_MarginLeft   10
+#define TimeLabel_MarginY      170
+#define TimeLabel_Width        120
+#define TimeLabel_Height       30
+
+#define Button_Width    45
+#define Button_Height   30
+
+
+
+
+@implementation DNWThirdCustomCell
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code
+        [self createSubviews];
+        
+    }
+    return self;
+}
+/**
+ *  初始化添加视图显示
+ */
+- (void)createSubviews
+{
+    CGFloat px = IntroduceLabel_MarginX;
+	CGFloat py = IntroduceLabel_MarginY;
+	CGFloat pw = IntroduceLabel_Width;
+	CGFloat ph = IntroduceLabel_Hight;
+    _introduceLable = [[UILabel alloc] initWithFrame:CGRectMake(px, py, pw, ph)];
+   // _introduceLable.backgroundColor = [UIColor orangeColor];
+    _introduceLable.font = [UIFont systemFontOfSize:12];
+	[self.contentView addSubview:_introduceLable];
+	[_introduceLable release];
+
+     px = PicImageView_MarginX;
+	 py = PicImageView_MarginY;
+	 pw = PicImageView_Width;
+	 ph = PicImageView_Hight;
+    
+    _imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _imageButton.frame = CGRectMake(px, py, pw, ph);
+    [_imageButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.contentView addSubview:_imageButton];
+    [_imageButton addTarget:self action:@selector(didClickImageButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    
+    _picImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, pw, ph)];
+    _picImageView.backgroundColor = [UIColor orangeColor];
+    [_imageButton addSubview:_picImageView];
+    [_picImageView release];
+    
+    
+    
+    
+    px = TimeLabel_MarginLeft;
+    py = TimeLabel_MarginY;
+    pw = TimeLabel_Width;
+    ph = TimeLabel_Height;
+    _timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(px, py, pw, ph)];
+    _timeLabel.text = @"时间显示";
+   // _timeLabel.textColor = [UIColor orangeColor];
+    _timeLabel.font = [UIFont systemFontOfSize:15];
+    [self.contentView addSubview:_timeLabel];
+    [_timeLabel release];
+    
+    px = TimeLabel_MarginLeft+TimeLabel_Width;
+    py = TimeLabel_MarginY;
+    pw = Button_Width;
+    ph = Button_Height;
+    
+    _collectButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _collectButton.frame = CGRectMake(px, py, pw, ph) ;
+    _collectButton.backgroundColor = [UIColor clearColor];
+    _collectButton.frame = CGRectMake(px+10, py+5, 20, 20);
+    NSString *image= [NSString stringWithFormat:@"star_full"];
+    UIImage *collctImage = [UIImage imageNamed:image];
+    [_collectButton setBackgroundImage:collctImage forState:UIControlStateNormal];
+    [self.contentView addSubview:_collectButton];
+    [_collectButton addTarget:self action:@selector(didClickCollectButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    
+    px = TimeLabel_MarginLeft+TimeLabel_Width+Button_Width;
+    py = TimeLabel_MarginY;
+    pw = Button_Width;
+    ph = Button_Height;
+    _collectLabel = [[UILabel alloc] initWithFrame:CGRectMake(px, py, pw, ph)];
+    _collectLabel.text = @"收藏";
+    _collectLabel.textColor =[UIColor orangeColor];
+    _collectLabel.font = [UIFont systemFontOfSize:12];
+    [self.contentView addSubview:_collectLabel];
+    [_collectLabel release];
+    
+    px = TimeLabel_MarginLeft+TimeLabel_Width+Button_Width+Button_Width;
+    py = TimeLabel_MarginY;
+    pw = Button_Width;
+    ph = Button_Height;
+    
+    _shareButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _shareButton.frame = CGRectMake(px, py, pw, ph) ;
+    _shareButton.backgroundColor = [UIColor clearColor];
+    _shareButton.frame = CGRectMake(px+10, py+5, 20, 20);
+    NSString *imageName = [NSString stringWithFormat:@"f045"];
+    UIImage *showImage = [UIImage imageNamed:imageName];
+    [_shareButton setBackgroundImage:showImage forState:UIControlStateNormal];
+    [self.contentView addSubview:_shareButton];
+    [_shareButton addTarget:self action:@selector(didClickShareButtonAction) forControlEvents:UIControlEventTouchUpInside];
+
+    
+    px = TimeLabel_MarginLeft+TimeLabel_Width+Button_Width+Button_Width+Button_Width;
+    py = TimeLabel_MarginY;
+    pw = Button_Width;
+    ph = Button_Height;
+    _shareLabel = [[UILabel alloc] initWithFrame:CGRectMake(px, py, pw, ph)];
+    _shareLabel.text = @"分享";
+    _shareLabel.textColor =[UIColor orangeColor];
+    _shareLabel.font = [UIFont systemFontOfSize:12];
+    [self.contentView addSubview:_shareLabel];
+    [_shareLabel release];
+    
+}
+/**
+ *  Block 的方法
+ */
+- (void)didClickImageButtonAction
+{
+    if (_block) {
+        _block();
+    }
+}
+- (void)changBackGround:(myBlock)block
+{
+    self.block = block;
+}
+/**
+ * collectButton 实现方法
+ */
+- (void)didClickCollectButtonAction
+{
+    self.backgroundColor = [UIColor orangeColor];
+    
+    
+}
+/**
+ *  shareButton 实现方法
+ */
+- (void)didClickShareButtonAction
+{
+    self.backgroundColor = [UIColor blueColor];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+/**
+ *  dealloc
+ */
+- (void)dealloc
+{
+    Block_release(self.block);
+    [super dealloc];
+}
+
+
+@end

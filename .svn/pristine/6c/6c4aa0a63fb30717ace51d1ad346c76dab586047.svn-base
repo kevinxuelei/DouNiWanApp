@@ -1,0 +1,38 @@
+//
+//  DNWHeadView.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-15.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+typedef void(^HandleRefreshEvent)();
+
+@class SYWaterDropView;
+
+@interface DNWHeadView : UIView
+{
+
+    BOOL touch1,touch2,hasStop;
+    BOOL isrefreshed;
+
+}
+
+@property (nonatomic, retain)  UIImageView *img_banner;
+@property (nonatomic, retain)  UIButton * loginButton;
+@property (nonatomic, retain)  SYWaterDropView *waterView;
+@property (nonatomic, retain)  UIView *showView;
+
+//注意看 scrollView 的回调
+@property(nonatomic,assign)    BOOL touching;
+@property(nonatomic,assign)    float offsetY;
+
+@property(nonatomic,copy)      HandleRefreshEvent handleRefreshEvent;
+
+-(void)stopRefresh;
+
+
+@end

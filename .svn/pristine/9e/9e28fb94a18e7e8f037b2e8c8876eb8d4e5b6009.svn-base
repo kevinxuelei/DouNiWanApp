@@ -1,0 +1,269 @@
+//
+//  DNWHeadView.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-15.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWHeadView.h"
+#import "SYWaterDropView.h"
+
+
+@interface DNWHeadView ()
+
+@property (nonatomic,assign)BOOL requested;
+@property (nonatomic,assign)BOOL requesting;
+
+
+@end
+
+@implementation DNWHeadView
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_img_banner);
+    RELEASE_SAFELY(_loginButton);
+    RELEASE_SAFELY(_waterView);
+    RELEASE_SAFELY(_showView);
+    Block_release(_handleRefreshEvent);
+    [super dealloc];
+
+}
+
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+        
+        [self initHeadView];
+    }
+    return self;
+}
+
+- (void)initHeadView{
+    
+    
+    //  创建背景视图
+    self.img_banner = [[UIImageView alloc]initWithFrame:self.bounds];
+    _img_banner.image = [UIImage imageNamed:@"2.jpg"];
+    //  图片自适应高度
+    _img_banner.contentMode = UIViewContentModeScaleAspectFill;
+    [_img_banner release];
+    
+    UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+    //  视图截取
+    [view setClipsToBounds:YES];
+    [view addSubview:_img_banner];
+    [self addSubview:view];
+    [view release];
+    
+    self.showView = [[UIView alloc] initWithFrame:CGRectMake(0, 20, ScreenWidth, 140)];
+    [self addSubview:self.showView];
+    [_showView release];
+    
+    //  创建点击登录按钮
+    self.loginButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _loginButton.frame = CGRectMake(15, 18, 66, 66);
+    _loginButton.backgroundColor = [UIColor yellowColor];
+    [_loginButton setTitle:@"请点击我登录" forState:UIControlStateNormal];
+    [_loginButton setImage:[UIImage imageNamed:@"star_full"] forState:UIControlStateNormal];
+    [_showView addSubview:_loginButton];
+    
+    //  创建水滴图案
+    self.waterView = [[SYWaterDropView alloc]initWithFrame:CGRectMake(32, 40, 20, 100)];
+    [self addSubview:_waterView];
+    [_waterView release];
+
+
+}
+
+-(void)willMoveToSuperview:(UIView *)newSuperview
+{
+    [super willMoveToSuperview:newSuperview];
+    if(newSuperview)
+    {
+        [self initWaterView];
+    }
+}
+-(void)setValue:(id)value forUndefinedKey:(NSString *)key
+{
+    NSLog(@"");
+}
+-(void)refresh
+{
+    if(_waterView.isRefreshing)
+    {
+        [_waterView startRefreshAnimation];
+    }
+}
+-(void)setIsRefreshed:(BOOL)b
+{
+    isrefreshed = b;
+}
+-(void)initWaterView
+{
+    __block DNWHeadView* wself =self;
+    [_waterView setHandleRefreshEvent:^{
+        [wself setIsRefreshed:YES];
+        if(wself.handleRefreshEvent)
+        {
+            wself.handleRefreshEvent();
+        }
+    }];
+}
+-(void)setTouching:(BOOL)touching
+{
+    if(touching)
+    {
+        if(hasStop)
+        {
+            [self resetTouch];
+        }
+        
+        if(touch1)
+        {
+            touch2 = YES;
+        }
+        else if(touch2 == NO && _waterView.isRefreshing == NO)
+        {
+            touch1 = YES;
+        }
+    }
+    else if(_waterView.isRefreshing == NO)
+    {
+        [self resetTouch];
+    }
+    _touching = touching;
+}
+-(void)resetTouch
+{
+    touch1 = NO;
+    touch2 = NO;
+    hasStop = NO;
+    isrefreshed = NO;
+}
+-(void)stopRefresh
+{
+    [_waterView stopRefresh];
+    if(_touching == NO)
+    {
+        [self resetTouch];
+    }
+    else
+    {
+        hasStop = YES;
+    }
+}
+-(void)setOffsetY:(float)y
+{
+    _offsetY = y;
+    CGRect frame = _showView.frame;
+    if(y<0)
+    {
+        if((_waterView.isRefreshing) || hasStop)
+        {
+            if(touch1 && touch2 == NO)
+            {
+                frame.origin.y = 20+y;
+                _showView.frame = frame;
+            }
+            else
+            {
+                if(frame.origin.y != 20)
+                {
+                    frame.origin.y = 20;
+                    _showView.frame = frame;
+                }
+            }
+        }
+        else
+        {
+            frame.origin.y = 20+y;
+            _showView.frame = frame;
+        }
+    }
+    else{
+        if(touch1 && _touching && isrefreshed)
+        {
+            touch2 = YES;
+        }
+        if(frame.origin.y != 20)
+        {
+            frame.origin.y = 20;
+            _showView.frame = frame;
+        }
+    }
+    if (hasStop == NO) {
+        _waterView.currentOffset = y;
+    }
+    
+    UIView* bannerSuper = _img_banner.superview;
+    CGRect bframe = bannerSuper.frame;
+    if(y<0)
+    {
+        bframe.origin.y = y;
+        bframe.size.height = -y + bannerSuper.superview.frame.size.height;
+        bannerSuper.frame = bframe;
+        
+        CGPoint center =  _img_banner.center;
+        center.y = bannerSuper.frame.size.height/2;
+        _img_banner.center = center;
+    }
+    else{
+        if(bframe.origin.y != 0)
+        {
+            bframe.origin.y = 0;
+            bframe.size.height = bannerSuper.superview.frame.size.height;
+            bannerSuper.frame = bframe;
+        }
+        if(y<bframe.size.height)
+        {
+            CGPoint center =  _img_banner.center;
+            center.y = bannerSuper.frame.size.height/2 + 0.5*y;
+            _img_banner.center = center;
+        }
+    }
+}
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

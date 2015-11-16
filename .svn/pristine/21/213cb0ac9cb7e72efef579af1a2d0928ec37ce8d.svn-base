@@ -1,0 +1,41 @@
+//
+//  DNWVideoPlayView.h
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <MediaPlayer/MediaPlayer.h>
+
+typedef void(^ViewBlock)(void);
+@class DNWThirdData;
+
+@interface DNWVideoPlayView : UIView
+
+@property (nonatomic,retain) UILabel *videoDescribeLabel;
+
+@property (nonatomic,retain) UIButton *patternButton;
+
+@property (nonatomic,retain) UIWebView *view;
+
+@property (nonatomic,retain)NSString *string;
+
+@property (nonatomic,retain)UIButton *button;
+
+@property (nonatomic,retain)DNWThirdData *thirdData;
+
+@property (nonatomic,retain)NSURL *url;
+
+@property (nonatomic,strong) MPMoviePlayerViewController *videoPlayer;
+
+@property (nonatomic,copy) ViewBlock block;
+
+- (void)changeViewBackGround:(ViewBlock)block;
+
+
+
+- (id)initWithFrame:(CGRect)frame url:(NSURL *)url string:(NSString *)string;
+
+@end

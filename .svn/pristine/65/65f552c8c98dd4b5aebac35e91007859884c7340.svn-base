@@ -1,0 +1,235 @@
+//
+//  DNWSecondViewTableViewCell.m
+//  DouNiWan
+//
+//  Created by apple on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWSecondViewTableViewCell.h"
+#import "CustomButton.h"
+
+#import "UIImageView+WebCache.h"
+
+#define _x 10
+#define _y 15
+#define y_gap 20
+#define x_gap 10
+#define iconViewWidth 60
+#define iconViewHigth 60
+#define nameLableHigth 20
+#define timeLableHigth 10
+#define titleLableHigh 30
+#define mainImageViewHigh 200
+#define agreebuttonHigh 40
+
+
+
+@implementation DNWSecondViewTableViewCell
+-(void)dealloc
+{
+    RELEASE_SAFELY(_iconView);
+    RELEASE_SAFELY(_timeLabel);
+    RELEASE_SAFELY(_titleLabel);
+    RELEASE_SAFELY(_nameLabel);
+    RELEASE_SAFELY(_mainImageView);
+    RELEASE_SAFELY(_agreeButton);
+    RELEASE_SAFELY(_disagreeButton);
+    RELEASE_SAFELY(_shareButton);
+    RELEASE_SAFELY(_discussButton);
+    
+    [super dealloc];
+}
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code
+        self.iconView = [[UIImageView alloc]initWithFrame:CGRectMake(_x, _y,iconViewWidth , iconViewHigth)];
+        [self addSubview:_iconView];
+        [_iconView release];
+        
+        self.nameLabel = [[UILabel alloc]initWithFrame:CGRectMake(_x+iconViewWidth+x_gap, _y, self.bounds.size.width-_x-x_gap-iconViewWidth-x_gap, nameLableHigth)];
+        [self addSubview:_nameLabel];
+        [_nameLabel release];
+        
+        self.timeLabel = [[UILabel alloc]initWithFrame:CGRectMake(_x+iconViewWidth+x_gap, _y+nameLableHigth+10, self.bounds.size.width-_x-x_gap-iconViewWidth-x_gap, timeLableHigth)];
+        _timeLabel.font = [UIFont systemFontOfSize:12];
+        _timeLabel.numberOfLines = 0;
+        
+        [self addSubview:_timeLabel];
+        [_timeLabel release];
+        
+        self.titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(_x, _y+iconViewHigth+y_gap, self.bounds.size.width-_x-_x, titleLableHigh)];
+        
+        _titleLabel.lineBreakMode=NSLineBreakByCharWrapping;
+        _titleLabel.numberOfLines = 0;
+        
+        [self addSubview:_titleLabel];
+        [_titleLabel release];
+        
+        self.mainImageView = [[UIImageView alloc]initWithFrame:CGRectMake(_x, _y+iconViewHigth+y_gap+titleLableHigh+y_gap, self.bounds.size.width-_x-_x, mainImageViewHigh)];
+        
+        [self addSubview:_mainImageView];
+        [_mainImageView release];
+        
+        CGFloat buttonWidth = (self.bounds.size.width-_x-_x)/4;
+        self.agreeButton = [[CustomButton alloc]initWithFrame:CGRectMake(_x, _y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+        
+        [self addSubview:_agreeButton];
+        
+        [_agreeButton release];
+        
+        self.disagreeButton = [[CustomButton alloc]initWithFrame:CGRectMake(_x+buttonWidth, _y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _disagreeButton.backgroundColor = [UIColor orangeColor];
+        [self addSubview:_disagreeButton];
+        [_disagreeButton release];
+        
+        self.shareButton = [[CustomButton alloc]initWithFrame:CGRectMake(_x+buttonWidth+buttonWidth, _y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _shareButton.backgroundColor = [UIColor blueColor];
+        [self addSubview:_shareButton];
+        [_shareButton release];
+        
+        self.discussButton = [[CustomButton alloc]initWithFrame:CGRectMake(_x+buttonWidth*3, _y+iconViewHigth+y_gap+titleLableHigh+y_gap+mainImageViewHigh+y_gap, buttonWidth, agreebuttonHigh)];
+//        _discussButton.backgroundColor =[UIColor blackColor];
+        [self addSubview:_discussButton];
+        [_discussButton release];
+        
+        
+        
+        
+    }
+    return self;
+}
+-(void)initWith:(DNWOneCellDataForSecondView*)celldata
+{
+    self.nameLabel.text = celldata.nameString;
+    self.timeLabel.text = celldata.timeString;
+    self.titleLabel.text = celldata.titleString;
+    self.titleLabel.numberOfLines =0;
+    UIFont * tfont = [UIFont systemFontOfSize:14];
+    self.titleLabel.font = tfont;
+    self.titleLabel.lineBreakMode =NSLineBreakByCharWrapping ;
+    //给一个比较大的高度，宽度不变
+    CGSize size =CGSizeMake(200,1000);
+    //    获取当前文本的属性
+    NSDictionary * tdic = [NSDictionary dictionaryWithObjectsAndKeys:tfont,NSFontAttributeName,nil];
+    //ios7方法，获取文本需要的size，限制宽度
+    CGSize  actualsize =[celldata.titleString boundingRectWithSize:size options:NSStringDrawingUsesLineFragmentOrigin |NSStringDrawingUsesFontLeading attributes:tdic context:nil].size;
+    //   更新label的frame
+    CGRect rect = self.titleLabel.frame;
+    rect.size.height = actualsize.height;
+    self.titleLabel.frame = rect;
+    
+    self.agreeButton.countNumberLabel.text = celldata.agreeCount;
+    self.agreeButton.countNumberLabel.font = [UIFont systemFontOfSize:12];
+    self.disagreeButton.countNumberLabel.text = celldata.disagreeCount;
+    self.disagreeButton.countNumberLabel.font = [UIFont systemFontOfSize:12];
+    self.shareButton.countNumberLabel.text = celldata.shareCount;
+    self.shareButton.countNumberLabel.font = [UIFont systemFontOfSize:12];
+    self.discussButton.countNumberLabel.text = celldata.discussCount;
+    self.discussButton.countNumberLabel.font = [UIFont systemFontOfSize:12];
+
+    [self.agreeButton.button setImage:[UIImage imageNamed:@"29-heart"] forState:UIControlStateNormal] ;
+    [self.disagreeButton.button setImage:[UIImage imageNamed:@"21-skull"] forState:UIControlStateNormal];
+    [self.shareButton.button setImage:[UIImage imageNamed:@"73-radar"] forState:UIControlStateNormal];
+    [self.discussButton.button setImage:[UIImage imageNamed:@"09-chat2"] forState:UIControlStateNormal];
+    [self.iconView setImageWithURL:[NSURL URLWithString:celldata.iconImageUrl]];
+    //修改主图片的y的起始位置
+    CGRect mainImageRect = self.mainImageView.frame;
+    mainImageRect.origin.y = self.titleLabel.frame.origin.y+self.titleLabel.frame.size.height+y_gap;
+    //修改图片的高度
+   CGFloat imgeScale = [[[NSDecimalNumber alloc] initWithString:celldata.mainImageWidth]doubleValue]/(self.bounds.size.width-_x-_x);
+    mainImageRect.size.width = [[[NSDecimalNumber alloc] initWithString:celldata.mainImageWidth]doubleValue]/imgeScale;
+    mainImageRect.size.height =[[[NSDecimalNumber alloc] initWithString:celldata.mainImageHigh ]doubleValue]/imgeScale;
+    self.mainImageView.frame = mainImageRect;
+    [self.mainImageView setImageWithURL:[NSURL URLWithString:celldata.mainImageUrl]];
+    //修改最下边一排按钮的坐标
+    CGRect agreeButtonRect = self.agreeButton.frame;
+    agreeButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.agreeButton.frame = agreeButtonRect;
+    
+    CGRect disagreeButtonRect = self.disagreeButton.frame;
+    disagreeButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.disagreeButton.frame = disagreeButtonRect;
+    
+    CGRect shareButtonRect = self.shareButton.frame;
+    shareButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.shareButton.frame = shareButtonRect;
+    
+    CGRect discussButtonRect = self.discussButton.frame;
+    discussButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.discussButton.frame = discussButtonRect;
+    
+//   return  _y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap+discussButtonRect.size.height+y_gap;
+//    return
+    
+}
+-(CGFloat)returnRowHighWith:(DNWOneCellDataForSecondView*)celldata
+{
+//    self.nameLabel.text = celldata.nameString;
+//    self.timeLabel.text = celldata.timeString;
+    self.titleLabel.text = celldata.titleString;
+    self.titleLabel.numberOfLines =0;
+    UIFont * tfont = [UIFont systemFontOfSize:14];
+    self.titleLabel.font = tfont;
+    self.titleLabel.lineBreakMode =NSLineBreakByCharWrapping ;
+    //    self.titleLabel.text = text ;
+    //给一个比较大的高度，宽度不变
+    CGSize size =CGSizeMake(200,1000);
+    //    获取当前文本的属性
+    NSDictionary * tdic = [NSDictionary dictionaryWithObjectsAndKeys:tfont,NSFontAttributeName,nil];
+    //ios7方法，获取文本需要的size，限制宽度
+    CGSize  actualsize =[celldata.titleString boundingRectWithSize:size options:NSStringDrawingUsesLineFragmentOrigin |NSStringDrawingUsesFontLeading attributes:tdic context:nil].size;
+    
+    //   更新label的frame
+    CGRect rect = self.titleLabel.frame;
+    rect.size.height = actualsize.height;
+    self.titleLabel.frame = rect;
+    self.agreeButton.countNumberLabel.text = celldata.agreeCount;
+    self.disagreeButton.countNumberLabel.text = celldata.disagreeCount;
+    self.shareButton.countNumberLabel.text = celldata.shareCount;
+    self.discussButton.countNumberLabel.text = celldata.discussCount;
+
+    [self.iconView setImageWithURL:[NSURL URLWithString:celldata.iconImageUrl]];
+    //修改主图片的y的起始位置
+    CGRect mainImageRect = self.mainImageView.frame;
+    mainImageRect.origin.y = self.titleLabel.frame.origin.y+self.titleLabel.frame.size.height+y_gap;
+    //修改图片的高度
+    CGFloat imgeScale = [[[NSDecimalNumber alloc] initWithString:celldata.mainImageWidth]doubleValue]/(self.bounds.size.width-_x-_x);
+    mainImageRect.size.width = [[[NSDecimalNumber alloc] initWithString:celldata.mainImageWidth]doubleValue]/imgeScale;
+    mainImageRect.size.height =[[[NSDecimalNumber alloc] initWithString:celldata.mainImageHigh ]doubleValue]/imgeScale;
+    self.mainImageView.frame = mainImageRect;
+    [self.mainImageView setImageWithURL:[NSURL URLWithString:celldata.mainImageUrl]];
+    //修改最下边一排按钮的坐标
+    CGRect agreeButtonRect = self.agreeButton.frame;
+    agreeButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.agreeButton.frame = agreeButtonRect;
+    
+    CGRect disagreeButtonRect = self.disagreeButton.frame;
+    disagreeButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.disagreeButton.frame = disagreeButtonRect;
+    
+    CGRect shareButtonRect = self.shareButton.frame;
+    shareButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.shareButton.frame = shareButtonRect;
+    
+    CGRect discussButtonRect = self.discussButton.frame;
+    discussButtonRect.origin.y=_y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap;
+    self.discussButton.frame = discussButtonRect;
+    
+    return  _y+iconViewHigth+y_gap+self.titleLabel.frame.size.height+y_gap+self.mainImageView.frame.size.height+y_gap+discussButtonRect.size.height+y_gap;
+}
+- (void)awakeFromNib
+{
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

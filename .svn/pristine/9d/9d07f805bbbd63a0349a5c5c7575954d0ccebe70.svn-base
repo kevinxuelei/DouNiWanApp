@@ -1,0 +1,246 @@
+//
+//  DNWMainViewController.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#define tabitem_width 80
+#define tabitem_hight 44
+#define tab_hight 49
+#define tab_width 320
+#define other_offtop 3
+
+#define img_hight 38
+#define img_width 25
+#define img_x 27
+#define img_y 4
+
+#define TAG 0
+
+#import "DNWMainViewController.h"
+#import "DNWFirstPapersViewController.h"
+#import "DNWSecondPictureViewController.h"
+
+@interface DNWMainViewController (){
+
+    UIImageView * _backGroundImageView;  //  tabbar背景View
+    UIImageView * _selectImageView;  //  滑动View
+    UIImageView * _buttonImageView;  //  按钮Image
+    
+    UIButton * _firstButton;
+    UIButton * _secondButton;
+    UIButton * _thirdButton;
+    UIButton * _fourthButton;
+    
+    DNWFirstPapersViewController * _firstPaperVC;
+    DNWSecondPictureViewController * _secondPictureVC;
+
+}
+
+@end
+
+@implementation DNWMainViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        [self.tabBar setHidden:YES];
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+    
+    [self createCustomTabBarView];
+    
+    [self createFourViewControllerToTabBarView];
+    
+}
+
+#pragma mark - 关联各自视图
+- (void)createFourViewControllerToTabBarView{
+
+    #pragma mark firstViewController
+    _firstPaperVC = [[DNWFirstPapersViewController alloc] init];
+    UINavigationController * firstPaperNC = [[UINavigationController alloc] initWithRootViewController:_firstPaperVC];
+    
+    #pragma mark secondViewController
+    _secondPictureVC = [[DNWSecondPictureViewController alloc] initWithStyle:UITableViewStylePlain];
+    UINavigationController * secondPictureNC = [[UINavigationController alloc] initWithRootViewController:_secondPictureVC];
+    
+#pragma mark thirdViewController
+    
+    self.viewControllers = @[firstPaperNC,secondPictureNC];
+    
+    
+    [_firstPaperVC release];
+    [firstPaperNC release];
+    [_secondPictureVC release];
+    [secondPictureNC release];
+    
+}
+
+#pragma mark - 自定义UITabBar
+- (void)createCustomTabBarView{
+    
+    _backGroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, ScreenHeight - tab_hight, ScreenWidth, tab_hight)];
+    _backGroundImageView.image = [UIImage imageNamed:@"tarBarBackground"];
+    _backGroundImageView.userInteractionEnabled = YES;
+    [self.view addSubview:_backGroundImageView];
+    [_backGroundImageView release];
+    
+    _selectImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, tabitem_width , tab_hight)];
+    _selectImageView.image = [UIImage imageNamed:@"select"];
+    [_backGroundImageView addSubview:_selectImageView];
+    [_selectImageView release];
+    
+   #pragma mark first标签
+    _buttonImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tabbar_home"] highlightedImage:[UIImage imageNamed:@"tabbar_home_selected"]];
+    _buttonImageView.frame = CGRectMake(img_x, img_y, img_width, img_hight);
+    _firstButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _firstButton.frame = CGRectMake(tabitem_width * 0, other_offtop, tabitem_width, tabitem_hight);
+    _firstButton.tag = 0 + TAG;
+    [_firstButton addTarget:self action:@selector(didClickButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [_firstButton addSubview:_buttonImageView];
+    [_buttonImageView release];
+    
+    #pragma mark second标签
+    _buttonImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tabbar_profile"] highlightedImage:[UIImage imageNamed:@"tabbar_profile_selected"]];
+    _buttonImageView.frame = CGRectMake(img_x, img_y, img_width, img_hight);
+    _secondButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _secondButton.frame = CGRectMake(tabitem_width * 1, other_offtop, tabitem_width, tabitem_hight);
+    _secondButton.tag = 1 + TAG;
+    [_secondButton addTarget:self action:@selector(didClickButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [_secondButton addSubview:_buttonImageView];
+    [_buttonImageView release];
+    
+    #pragma mark third标签
+    _buttonImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tabbar_discover"] highlightedImage:[UIImage imageNamed:@"tabbar_discover_selected"]];
+    _buttonImageView.frame = CGRectMake(img_x, img_y, img_width, img_hight);
+    _thirdButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _thirdButton.frame = CGRectMake(tabitem_width * 2, other_offtop, tabitem_width, tabitem_hight);
+    _thirdButton.tag = 2 + TAG;
+    [_thirdButton addTarget:self action:@selector(didClickButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [_thirdButton addSubview:_buttonImageView];
+    [_buttonImageView release];
+    
+    #pragma mark fourth标签
+    _buttonImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"tabbar_more"] highlightedImage:[UIImage imageNamed:@"tabbar_more_selected"]];
+    _buttonImageView.frame = CGRectMake(img_x, img_y, img_width, img_hight);
+    _fourthButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _fourthButton.frame = CGRectMake(tabitem_width * 3, other_offtop, tabitem_width, tabitem_hight);
+    _fourthButton.tag = 3 + TAG;
+    [_fourthButton addTarget:self action:@selector(didClickButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [_fourthButton addSubview:_buttonImageView];
+    [_buttonImageView release];
+    
+    
+    [_backGroundImageView addSubview:_firstButton];
+    [_backGroundImageView addSubview:_secondButton];
+    [_backGroundImageView addSubview:_thirdButton];
+    [_backGroundImageView addSubview:_fourthButton];
+    
+    
+}
+
+#pragma mark - 点击按钮响应方法
+- (void)didClickButtonAction:(id)sender{
+    
+    UIButton * button = (UIButton *)sender;
+    self.selectedIndex = button.tag;
+    
+    [self moveSelectImageView:button];
+    [self imgAnimate:button];
+    
+    if (_firstButton.tag != button.tag) {
+        
+        ((UIImageView *)_firstButton.subviews[0]).highlighted = NO;
+        
+    }
+    
+    if (_secondButton.tag != button.tag) {
+        
+        ((UIImageView *)_secondButton.subviews[0]).highlighted = NO;
+        
+    }
+    
+    if (_thirdButton.tag != button.tag) {
+        
+        ((UIImageView *)_thirdButton.subviews[0]).highlighted = NO;
+        
+    }
+    
+    if (_fourthButton.tag != button.tag) {
+        
+        ((UIImageView *)_fourthButton.subviews[0]).highlighted = NO;
+        
+    }
+    
+    
+    ((UIImageView *)button.subviews[0]).highlighted = YES;
+    
+}
+
+#pragma mark - 图片滑动动画
+- (void)moveSelectImageView:(UIButton*)btn{
+    
+    [UIView animateWithDuration:0.3 animations:
+     ^(void){
+         
+         CGRect frame = _selectImageView.frame;
+         frame.origin.x = btn.frame.origin.x;
+         _selectImageView.frame = frame;
+         
+     } completion:^(BOOL finished){
+     }];
+    
+}
+
+#pragma mark - 按钮图片动画
+- (void)imgAnimate:(UIButton*)btn{
+    
+    UIView *view=btn.subviews[0];
+    
+    [UIView animateWithDuration:0.1 animations:
+     ^(void){
+         
+         view.transform = CGAffineTransformScale(CGAffineTransformIdentity,0.5, 0.5);
+         
+         
+     } completion:^(BOOL finished){
+         [UIView animateWithDuration:0.2 animations:
+          ^(void){
+              
+              view.transform = CGAffineTransformScale(CGAffineTransformIdentity,1.2, 1.2);
+              
+          } completion:^(BOOL finished){
+              [UIView animateWithDuration:0.1 animations:
+               ^(void){
+                   
+                   view.transform = CGAffineTransformScale(CGAffineTransformIdentity,1,1);
+                   
+                   
+               } completion:^(BOOL finished){
+               }];
+          }];
+     }];
+    
+    
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

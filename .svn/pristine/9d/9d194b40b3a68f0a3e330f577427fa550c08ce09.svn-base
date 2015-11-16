@@ -1,0 +1,52 @@
+//
+//  DNWSwitchTableViewCell.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-17.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWSettingTableViewCell.h"
+
+@implementation DNWSettingTableViewCell
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        // Initialization code
+        
+        [self createCustomSettingsTabelViewCell];
+        
+    }
+    return self;
+}
+
+- (void)createCustomSettingsTabelViewCell{
+
+    _iconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 5, 30, 30)];
+    _iconImageView.userInteractionEnabled = YES;
+    _iconImageView.backgroundColor = [UIColor cyanColor];
+    [self.contentView addSubview:_iconImageView];
+    [_iconImageView release];
+    
+    _contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(50, 5, 250, 30)];
+    [self.contentView addSubview:_contentLabel];
+    [_contentLabel release];
+    
+}
+
+
+- (void)awakeFromNib
+{
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

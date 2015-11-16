@@ -1,0 +1,43 @@
+//
+//  DNWEssenceTableView.h
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-10.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+/**
+ *  封装一个类,继承自UITableView
+ *
+ *  @param  段子页面,UISegmentedControl下3个页面架构一样,我就构思封装一个tableView,只通过改变请求的接口网址,来实现完成所有页面重用
+ *
+ *  @return 自定义的tableView对象
+ */
+
+#import <UIKit/UIKit.h>
+
+typedef void(^PushCommitView)(NSString *);
+
+@interface DNWFirstPageTableView : UITableView<UITableViewDelegate,UITableViewDataSource>
+
+/**
+ *  allDataArray    段子对象的数组
+ *  urlString       请求数据的网址,用于判断push评论页面时,当前的请求内容对象
+ *  pushCommitView  block传值,封装后完成回调
+ */
+@property (nonatomic,retain)NSMutableArray * allDataArray;
+//@property (nonatomic,copy)NSString * urlString;
+@property (nonatomic,copy)PushCommitView pushCommitView;
+
+/**
+ *  自定义初始化方法
+ *
+ *  @param frame     frame
+ *  @param style     style
+ *  @param urlString 需要显示内容的请求网址
+ *
+ *  @return 所需求的tableView对象
+ */
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style urlString:(NSString *)urlString;
+
+@end

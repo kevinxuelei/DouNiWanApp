@@ -1,0 +1,74 @@
+//
+//  DNWWedViewController.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-13.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWWedViewController.h"
+
+
+@interface DNWWedViewController ()
+{
+    UIWebView *wedView;
+    UIActivityViewController *activityVC;
+}
+@end
+
+@implementation DNWWedViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    //self.view.backgroundColor = [UIColor orangeColor];
+	// Do any additional setup after loading the view.
+    
+    
+    wedView = [[UIWebView alloc]initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:_url];
+    wedView.delegate = self;
+    [wedView loadRequest:request];
+    wedView.scalesPageToFit = YES;
+    [self.view addSubview:wedView];
+    
+    [wedView release];
+  
+
+    
+}
+
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    
+}
+
+- (void)webViewDidStartLoad:(UIWebView *)webView
+{
+    
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
+{
+    
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

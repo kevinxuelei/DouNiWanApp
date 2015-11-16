@@ -1,0 +1,156 @@
+//
+//  DNWThirdDataHandle.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-21.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWThirdDataHandle.h"
+#import "DNWThirdData.h"
+#import "FMDB.h"
+
+
+@implementation DNWThirdDataHandle
+
+static DNWThirdDataHandle *handle = nil;
++ (DNWThirdDataHandle *)shareInstance
+{
+    @synchronized(self){
+        if (!handle) {
+            handle = [[DNWThirdDataHandle alloc] init];
+        
+            [handle openDB];
+            [handle createVideo];
+        }
+    }
+    
+    return handle;
+}
+
+
+#pragma mark - 获得沙盒文件下Documents路径
+- (NSString *)getCacher{
+    
+    NSString * cachers = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    return cachers;
+}
+
+
+#pragma mark-------数据库,打开,关闭----
+
+//打开
+- (void)openDB
+{
+
+   
+    NSString * filePath = [[self getCacher] stringByAppendingPathComponent:@"doulewan.sqlite"];
+    
+    self.database = [FMDatabase databaseWithPath:filePath];
+    if (![_database open]) {
+        
+        NSLog(@"打开数据库失败");
+    }
+    
+    // 为数据库设置缓存,提高查询效率
+    _database.shouldCacheStatements = YES;
+    
+}
+//关闭
+- (void)closeDB
+{
+    if (![_database close]) {
+        //NSLog(@"关闭数据库失败");
+        return;
+    }    
+    _database = nil;
+    //NSLog(@"关闭数据库成功");
+}
+
+#pragma mark-----创建数据库----
+
+- (void)createVideo
+{
+    [self openDB];
+    
+    if (![_database tableExists:@"Video"]) {
+        
+        [_database executeUpdate:@"CREATE TABLE Video(Id TEXT PRIMARY KEY, mp4_url TEXT,pic TEXT, title TEXT,web_url TEXT,timeStr TEXT)"];
+        
+        NSLog(@"创建表成功");
+    }
+    
+    [self closeDB];
+    
+}
+
+#pragma mark ----添加数据操作-----
+- (void)insertNewDNWThirdData:(DNWThirdData *)DNWThirdData
+{
+    [self openDB];
+    
+    [_database executeUpdate:@" INSERT INTO Video (Id,mp4_url,pic,title,web_url,timeStr) VALUES (?,?,?,?,?,?)",DNWThirdData.Id,DNWThirdData.mp4_url,DNWThirdData.pic,DNWThirdData.title,DNWThirdData.web_url,DNWThirdData.timeStr];
+        
+    [self closeDB];
+    
+}
+#pragma mark----删除数据操作----
+- (void)deleteDNWThirdData:(DNWThirdData *)DNWThirdData
+{
+    [self openDB];
+    NSLog(@"%@",DNWThirdData.Id);
+    [_database executeUpdate:@" DELETE FROM Video WHERE Id = ?",DNWThirdData.Id];
+    
+    [self closeDB];
+}
+#pragma mark-----查找数据----
+- (NSMutableArray *)selectAllDNWThirdData
+{
+    [self openDB];
+    NSMutableArray * allThirdDataArray = [NSMutableArray array];
+    FMResultSet * resultSet = [_database executeQuery:@" SELECT * FROM Video"];
+    while ([resultSet next]) {
+        
+        DNWThirdData *VideoData = [[DNWThirdData alloc]init];
+        VideoData.Id = [resultSet stringForColumn:@"Id"];
+        VideoData.mp4_url = [resultSet stringForColumn:@"mp4_url"];
+        VideoData.pic = [resultSet stringForColumn:@"pic"];
+        VideoData.timeStr = [resultSet stringForColumn:@"timeStr"];
+        VideoData.title = [resultSet stringForColumn:@"title"];
+        VideoData.web_url = [resultSet stringForColumn:@"web_url"];
+        [allThirdDataArray addObject:VideoData];
+        [VideoData release];
+    }
+    
+    [self closeDB];
+    return allThirdDataArray;
+}
+
+#pragma mark-----根据Id查看对象是否已经存在----
+- (BOOL)electThirdDataWithId:(NSString *)Id
+{
+    [self openDB];
+    FMResultSet * resultSet = [_database executeQuery:@"SELECT * FROM Video Where Id = ?",Id];
+    
+    while ([resultSet next]) {
+        
+        return YES;        
+    }
+    
+    [self closeDB];
+    return NO;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+@end

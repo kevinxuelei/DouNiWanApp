@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>63E3EAD0-F308-44F7-B832-A40AA3B04944</string>
+	<key>IDESourceControlProjectName</key>
+	<string>DouNiWan</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>D438F02C-7BA8-4E56-B37A-61B8E8A8919A</key>
+		<string>svn://172.16.5.1/BJS140217/A/group_1/trunk/DouNiWan</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>DouNiWan.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>D438F02C-7BA8-4E56-B37A-61B8E8A8919A</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>D438F02C-7BA8-4E56-B37A-61B8E8A8919A</key>
+		<string>svn://172.16.5.1</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>svn://172.16.5.1/BJS140217/A/group_1/trunk/DouNiWan/DouNiWan.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>D438F02C-7BA8-4E56-B37A-61B8E8A8919A</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>D438F02C-7BA8-4E56-B37A-61B8E8A8919A</string>
+			<key>IDESourceControlWCCName</key>
+			<string>DouNiWan</string>
+		</dict>
+	</array>
+</dict>
+</plist>

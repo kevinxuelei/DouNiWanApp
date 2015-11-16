@@ -1,0 +1,143 @@
+//
+//  DNWPersonCenterViewController.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-15.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWPersonCenterViewController.h"
+#import "DNWHeadView.h"
+
+@interface DNWPersonCenterViewController (){
+
+    UITableView * _personCenterTableView;
+
+}
+
+@property (retain, nonatomic) DNWHeadView * headView;
+
+
+
+@end
+
+@implementation DNWPersonCenterViewController
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_headView);
+    [super dealloc];
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    _personCenterTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain];
+    _personCenterTableView.delegate = self;
+    _personCenterTableView.dataSource = self;
+    _personCenterTableView.showsVerticalScrollIndicator = NO;
+    [self.view addSubview:_personCenterTableView];
+    [_personCenterTableView release];
+    
+    self.headView = [[DNWHeadView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 140)];
+    _personCenterTableView.tableHeaderView  = _headView;
+    [_headView release];
+    
+    __block DNWPersonCenterViewController * wself = self;
+    [_headView setHandleRefreshEvent:^{
+        double delayInSeconds = 10.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [wself.headView stopRefresh];
+        });
+    }];
+
+
+}
+
+#pragma mark- scroll delegate
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    self.headView.offsetY = scrollView.contentOffset.y;
+}
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    _headView.touching = NO;
+}
+-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if(decelerate==NO)
+    {
+        _headView.touching = NO;
+    }
+}
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    _headView.touching = YES;
+}
+#pragma mark-
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+
+    return 1;
+
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+
+    return 10;
+
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    // Configure the cell...
+    if (!cell) {
+        
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+        
+    }
+    
+    //  在自定义Cell内部完成赋值
+    
+    return cell;
+
+    
+
+
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

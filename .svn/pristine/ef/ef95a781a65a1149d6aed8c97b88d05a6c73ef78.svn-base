@@ -1,0 +1,46 @@
+//
+//  DNWNetWork.m
+//  DouNiWan
+//
+//  Created by apple on 14-5-18.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWNetWork.h"
+
+@implementation DNWNetWork
+
+//- (void)startRequestWithURLString:(NSString *)URLString
+//{
+//    //创建URL
+//    NSURL * url = [NSURL URLWithString:[URLString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    //网络请求
+//    self.request = [NSURLRequest requestWithURL:url];
+//    //网络连接
+//    self.connection = [NSURLConnection connectionWithRequest:self.request delegate:self];
+//}
+//-(void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+//{
+//    self.receiveData = [NSMutableData data];
+//}
+//-(void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+//{
+//    [self.receiveData appendData:data];
+//}
+//-(void)connectionDidFinishLoading:(NSURLConnection *)connection
+//{
+//    NSMutableDictionary * dic = [NSJSONSerialization JSONObjectWithData:self.receiveData options:NSJSONReadingMutableContainers error:nil];
+//    
+//    //    self.receiveArray = [dic objectForKey:@"list"];
+//    self.dataArray = [dic objectForKey:@"list"];
+//    
+//    //     [self.dataArray addObjectsFromArray:self.receiveArray];
+//    [self reloadData];
+//}
+//
+//- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+//{
+//    NSLog(@"");
+//}
+
+@end

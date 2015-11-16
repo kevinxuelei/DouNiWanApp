@@ -1,0 +1,369 @@
+//
+//  DNWEssenceTableView.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-10.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+
+#import "DNWFirstPagesTableView.h"
+#import "DNWFirstCustomCell.h"
+#import "DNWAllDataHandle.h"
+#import "DNWPaperData.h"
+#import "DNWBottomLabelView.h"
+#import "MJRefresh.h"
+#import "HMTMyCustomNetRequest.h"
+
+@interface DNWFirstPagesTableView (){
+
+    NSInteger page;  //  请求的当前页码
+    
+    MJRefreshHeaderView   * _header;
+    MJRefreshFooterView   * _footer;
+    HMTMyCustomNetRequest * _request;
+}
+
+@end
+
+@implementation DNWFirstPagesTableView
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_allDataArray);
+    RELEASE_SAFELY(_momentDataArray);
+    Block_release(_pushCommitView);
+    RELEASE_SAFELY(_frontString);
+    RELEASE_SAFELY(_backString);
+    
+    [_header free];
+    [_footer free];
+    
+    RELEASE_SAFELY(_request);
+    
+    [super dealloc];
+
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        // Initialization code
+        
+        self.delegate = self;
+        self.dataSource = self;
+        
+    }
+    return self;
+}
+
+#pragma mark - 实现一个tableView多用的初始化方法
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style urlString:(NSString *)urlString{
+    
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+        self.allDataArray = [NSMutableArray array];
+        self.momentDataArray = [NSMutableArray array];
+        
+        // 通过数据操作类,解析JSON数据,返回数组
+        [[DNWAllDataHandle sharedInstance] getAllPaperDataWithUrl:urlString];
+        __block DNWFirstPagesTableView * otherSelf = self;
+        [[DNWAllDataHandle sharedInstance] setReposeDataBlock:^(NSMutableArray * dataArray){
+        
+            otherSelf.allDataArray = dataArray;
+            
+            // 请求到数据后,一定要刷新tableView,因为空白的Cell出现在你请求数据之前,要手动刷新
+            [otherSelf reloadData];
+            
+        }];
+        
+        //  cell之间分割线样式
+        self.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        
+        page = 0;
+        [self refreshFromHeadViewOfBlock];
+        [self refreshFromFootViewOfBlock];
+        
+
+    }
+    
+    return self;
+    
+}
+
+#pragma mark - 下拉刷新
+- (void)refreshFromHeadViewOfBlock{
+
+    _header = [MJRefreshHeaderView header];
+    _header.scrollView = self;
+
+    __block DNWFirstPagesTableView * otherSelf = self;
+    [_header setBeginRefreshingBlock:^(MJRefreshBaseView * refreshView){
+    
+        NSString * urlString = [[otherSelf.frontString stringByAppendingString:[NSString stringWithFormat:@"%i",page]] stringByAppendingString:otherSelf.backString];
+        
+        [[DNWAllDataHandle sharedInstance] getAllPaperDataWithUrl:urlString];
+        [[DNWAllDataHandle sharedInstance]setReposeDataBlock:^(NSMutableArray * dataArray){
+            
+            otherSelf.momentDataArray = dataArray;
+            
+            otherSelf.allDataArray = [NSMutableArray arrayWithArray:dataArray];
+            
+            [otherSelf reloadData];
+            // 结束刷新
+            [refreshView endRefreshing];
+            
+        }];
+    }];
+    
+    [_header setEndStateChangeBlock:^(MJRefreshBaseView * refreshView){
+        
+        self.momentDataArray = [NSMutableArray array];
+        page = 0;
+        
+    }];
+
+}
+
+#pragma mark - 上拉加载
+- (void)refreshFromFootViewOfBlock{
+
+    _footer = [MJRefreshFooterView footer];
+    _footer.scrollView = self;
+    
+    __block DNWFirstPagesTableView * otherSelf = self;
+    [_footer setBeginRefreshingBlock:^(MJRefreshBaseView * refreshView){
+        
+        NSString * urlString = [[otherSelf.frontString stringByAppendingString:[NSString stringWithFormat:@"%i",page]] stringByAppendingString:otherSelf.backString];
+        
+        [[DNWAllDataHandle sharedInstance] getAllPaperDataWithUrl:urlString];
+        [[DNWAllDataHandle sharedInstance] setReposeDataBlock:^(NSMutableArray * dataArray){
+        
+            otherSelf.momentDataArray = dataArray;
+            
+            for (int i = 0; i < [_momentDataArray count]; i++) {
+                
+                [otherSelf.allDataArray addObject:[_momentDataArray objectAtIndex:i]];
+                
+            }
+            
+            [otherSelf reloadData];
+            // 结束刷新
+            [refreshView endRefreshing];
+            
+        }];
+    }];
+    
+    [_footer setEndStateChangeBlock:^(MJRefreshBaseView * refreshView){
+        
+        self.momentDataArray = [NSMutableArray array];
+        page ++;
+        
+    }];
+
+    
+
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+    // Return the number of sections.
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    // Return the number of rows in the section.
+    return [self.allDataArray count];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    //  因为不确定文本高度,因此要自动调整文本高度
+    return [DNWFirstCustomCell cellHeight:((DNWPaperData *)[self.allDataArray objectAtIndex:indexPath.row])] + 5;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    DNWFirstCustomCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    // Configure the cell...
+    if (!cell) {
+        
+        cell = [[[DNWFirstCustomCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+        
+    }
+    
+    DNWPaperData * _paperData = [self.allDataArray objectAtIndex:indexPath.row];
+    
+    //  在自定义Cell内部完成赋值
+    cell.paperData = _paperData;
+    
+    //  实现love赞一个
+    [cell.praiseView setPassBlock:^(){
+        //  判断是否已经被赞或者贬
+        if (_paperData.isLoveOrHate == YES) {
+            
+            [cell changeCountAnimation:cell.praiseView];
+            [UIView animateWithDuration:0.5 animations:^{
+                
+                cell.animationLabel.transform = CGAffineTransformTranslate(cell.animationLabel.transform, 20, -20);
+                cell.animationLabel.alpha = 0.0;
+                _paperData.favouriteNumber = [NSString stringWithFormat:@"%i",[_paperData.favouriteNumber intValue] + 1];
+            } completion:^(BOOL finished) {
+                
+                [cell.animationLabel removeFromSuperview];
+                //  关闭交互,只准赞一次
+                cell.praiseView.clearButton.userInteractionEnabled = NO;
+                //  已赞
+                _paperData.isLoveOrHate = NO;
+                [self reloadData];
+            }];
+        }
+        
+    }];
+    
+    //  实现hate贬一个
+    [cell.hateView setPassBlock:^(){
+    
+        if (_paperData.isLoveOrHate == YES) {
+            
+            [cell changeCountAnimation:cell.hateView];
+            [UIView animateWithDuration:0.5 animations:^{
+                cell.animationLabel.alpha = 0.0;
+                cell.animationLabel.transform = CGAffineTransformTranslate(cell.animationLabel.transform, 20, -20);
+                _paperData.hateNumber = [NSString stringWithFormat:@"%i",[_paperData.hateNumber intValue] + 1];
+            } completion:^(BOOL finished) {
+                
+                [cell.animationLabel removeFromSuperview];
+                cell.hateView.clearButton.userInteractionEnabled = NO;
+                _paperData.isLoveOrHate = NO;
+                [self reloadData];
+            }];
+        }
+
+        
+    }];
+    
+    //  实现分享
+    [cell.shareView setPassBlock:^(){
+        
+        /**
+         *	@brief	创建分享内容对象，根据以下每个字段适用平台说明来填充参数值
+         *
+         *	@param 	content 	分享内容（新浪、腾讯、网易、搜狐、豆瓣、人人、开心、有道云笔记、facebook、twitter、邮件、打印、短信、微信、QQ、拷贝）
+         *	@param 	defaultContent 	默认分享内容（新浪、腾讯、网易、搜狐、豆瓣、人人、开心、有道云笔记、facebook、twitter、邮件、打印、短信、微信、QQ、拷贝）
+         *	@param 	image 	分享图片（新浪、腾讯、网易、搜狐、豆瓣、人人、开心、facebook、twitter、邮件、打印、微信、QQ、拷贝）
+         *	@param 	title 	标题（QQ空间、人人、微信、QQ）
+         *	@param 	url 	链接（QQ空间、人人、instapaper、微信、QQ）
+         *	@param 	description 	主体内容（人人）
+         *	@param 	mediaType 	分享类型（QQ、微信）
+         *
+         *	@return	分享内容对象
+         */
+        //  拼接段子的内容和网页链接
+        NSString * content = [[_paperData.paperText stringByAppendingString:[NSString stringWithFormat:@"[%@",_paperData.commentUrl]] stringByAppendingString:@"]"];
+        id<ISSContent> publishContent = [ShareSDK content:content
+                                           defaultContent:@"这个人比较懒,目前什么都木有写"
+                                                    image:nil
+                                                    title:@"逗乐玩"
+                                                      url:@"http://blog.csdn.net/hmt20130412"
+                                              description:_paperData.paperText
+                                                mediaType:SSPublishContentMediaTypeText];
+        
+        [ShareSDK showShareActionSheet:nil
+                             shareList:nil
+                               content:publishContent
+                         statusBarTips:YES
+                           authOptions:nil
+                          shareOptions: nil
+                                result:^(ShareType type, SSResponseState state, id<ISSPlatformShareInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+                                    if (state == SSResponseStateSuccess)
+                                    {
+                                        
+                                        //  假分享计数字(并没有上传到服务器)
+                                        _paperData.shareNumber = [NSString stringWithFormat:@"%i",[_paperData.shareNumber intValue] + 1];
+                                        
+                                        //  切记,tableView上数据要主动刷新,只要希望更改后能显示新数据的地方都要刷新
+                                        [self reloadData];
+                                        
+                                    }
+                                    else if (state == SSResponseStateFail)
+                                    {
+                                        NSLog(@"分享失败,错误码:%d,错误描述:%@", [error errorCode], [error errorDescription]);
+                                    }
+                                }];
+        
+        
+        
+        /**
+         *	@brief	一键分享内容
+         *
+         *	@param 	content 	内容对象
+         *	@param 	shareList 	平台类型列表（邮件、短信、微信、QQ、打印、拷贝除外） 平台类型是一个枚举------->ShareType
+         *	@param 	authOptions 	授权选项，用于指定接口在需要授权时的一些属性（如：是否自动授权，授权视图样式等）,设置未nil则表示采用默认选项
+         *  @param  statusBarTips   状态栏提示
+         *	@param 	result 	返回事件
+         */
+        /*
+         [ShareSDK oneKeyShareContent:publishContent shareList:@[[NSString stringWithFormat:@"%i",ShareTypeSinaWeibo]] authOptions:nil shareOptions:nil statusBarTips:YES result:^(ShareType type, SSResponseState state, id<ISSPlatformShareInfo> statusInfo, id<ICMErrorInfo> error, BOOL end) {
+         if (state == SSResponseStateSuccess)
+         {
+         NSLog(@"分享成功");
+         }
+         else if (state == SSResponseStateFail)
+         {
+         NSLog(@"分享失败,错误码:%d,错误描述:%@", [error errorCode], [error errorDescription]);
+         }
+         }];*/
+        
+    }];
+    
+    //  评论
+    [cell.discussView setPassBlock:^(){
+    
+        if (_pushCommitView) {
+            
+            _pushCommitView(_paperData.commentUrl);
+            
+        }
+    }];
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+//    DNWPaperData * paperData = [self.allDataArray objectAtIndex:indexPath.row];
+//    
+//    // 选中Cell时候,推出评论详情页面,传入相对应的评论URL
+//    if (_pushCommitView) {
+//        
+//        _pushCommitView(paperData.commentUrl);
+//        
+//    }
+
+}
+
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect
+{
+    // Drawing code
+}
+*/
+
+@end

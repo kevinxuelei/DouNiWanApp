@@ -1,0 +1,227 @@
+//
+//  DNWFirstPapersViewController.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-10.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#define EssencePaperURL  @"http://api.budejie.com/api/api_open.php?c=data&a=list&from=ios&per=20&page=0&type=29&client=iphone&market=&ver=2.6&device=iPhone%205&uid=&sex=&udid=&mac=02:00:00:00:00:00&openudid=131ee15d28c0deb092739505d94cc1afc601eec8&asid=67E2FAF1-18A3-423E-9BF8-4248922D30BA&jbk=0&appname=baisibudejie"
+
+#define BestNewPaperURL  @"http://api.budejie.com/api/api_open.php?c=data&a=newlist&from=ios&per=20&page=0&type=29&client=iphone&market=&ver=2.6&device=iPhone%205&uid=&sex=&udid=&mac=02:00:00:00:00:00&openudid=131ee15d28c0deb092739505d94cc1afc601eec8&asid=67E2FAF1-18A3-423E-9BF8-4248922D30BA&jbk=0&appname=baisibudejie"
+
+#define ArcrandomPaperURL  @"http://api.budejie.com/api/api_open.php?c=data&a=list&from=ios&per=20&page=0&type=29&order=timewarp&client=iphone&market=&ver=2.6&device=iPhone%205&uid=&sex=&udid=&mac=02:00:00:00:00:00&openudid=131ee15d28c0deb092739505d94cc1afc601eec8&asid=67E2FAF1-18A3-423E-9BF8-4248922D30BA&jbk=0&appname=baisibudejie"
+
+
+#import "DNWFirstPapersViewController.h"
+#import "DNWCustomWeatherView.h"
+#import "DNWFirstPageTableView.h"
+#import "DNWAllDataHandle.h"
+#import "DNWCommitViewController.h"
+
+
+@interface DNWFirstPapersViewController (){
+
+    UISegmentedControl * _segmentView;
+    DNWCustomWeatherView * _weatherView;
+    DNWFirstPageTableView * _essenceTableView;
+    DNWFirstPageTableView * _bestNewTableView;
+    DNWFirstPageTableView * _arcrandomTableView;
+    UIScrollView * _rootScrollView;
+
+}
+
+@end
+
+@implementation DNWFirstPapersViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    NSLOG_FUNCTION;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+	// Do any additional setup after loading the view.
+    NSLOG_FUNCTION;
+    [self createRootScrollView];
+    
+#pragma mark - segmentedControl分页控制器
+    NSArray * segmentArray = @[@"火热",@"最新",@"穿越"];
+    _segmentView = [[UISegmentedControl alloc] initWithItems:segmentArray];
+    _segmentView.frame = CGRectMake(100, 24, 120, 36);
+    _segmentView.momentary = NO;
+    _segmentView.selectedSegmentIndex = 0;
+    _segmentView.tintColor = [UIColor redColor];
+    [_segmentView addTarget:self action:@selector(didClickSegmentView:) forControlEvents:UIControlEventValueChanged];
+    self.navigationItem.titleView = _segmentView;
+    
+#pragma mark - 左侧按钮
+    self.navigationItem.leftBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(didClickLeftBarButtonAction:)] autorelease];
+    
+#pragma mark - 天气labelView
+    _weatherView = [[DNWCustomWeatherView alloc] initWithFrame:CGRectMake(240, 0, 80, 44)];
+    self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:_weatherView]autorelease];
+    
+    [_weatherView release];
+    [_segmentView release];
+    
+#pragma mark - 默认是精华tableView(仔细观察发现,在viewDidLoad里面创建和在外部创建,所起的Y坐标是不一样的)
+    [self createEssenceTableView];
+    //[self createBestNewTableView];
+    //[self createArcrandomTableView];
+    
+}
+
+#pragma mark - 创建滚动效果视图
+- (void)createRootScrollView{
+
+    _rootScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
+    _rootScrollView.showsHorizontalScrollIndicator = NO;
+    _rootScrollView.contentSize = CGSizeMake(ScreenWidth * 3, 0);
+    _rootScrollView.pagingEnabled = YES;
+    _rootScrollView.bounces = NO;
+    _rootScrollView.delegate = self;
+    [self.view addSubview:_rootScrollView];
+    [_rootScrollView release];
+
+}
+
+#pragma mark - 创建精华tableView
+- (void)createEssenceTableView{
+
+    _essenceTableView = [[DNWFirstPageTableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain urlString:EssencePaperURL];
+    [_rootScrollView addSubview:_essenceTableView];
+    [_essenceTableView release];
+    
+    // 防止循环引用,预防内存泄露
+    __block DNWFirstPapersViewController * otherSelf = self;
+    [_essenceTableView setPushCommitView:^(NSString * url){
+    
+        DNWCommitViewController * commitVC = [[DNWCommitViewController alloc] init];
+        commitVC.getCommitUrl = url;
+        [otherSelf.navigationController pushViewController:commitVC animated:YES];
+        [commitVC release];
+    
+    }];
+
+}
+
+#pragma mark - 创建最新tableView
+- (void)createBestNewTableView{
+    
+    _bestNewTableView = [[DNWFirstPageTableView alloc] initWithFrame:CGRectMake(320, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain urlString:BestNewPaperURL];
+    [_rootScrollView addSubview:_bestNewTableView];
+    [_bestNewTableView release];
+
+    // 防止循环引用,预防内存泄露
+    __block DNWFirstPapersViewController * otherSelf = self;
+    [_bestNewTableView setPushCommitView:^(NSString * url){
+        
+        DNWCommitViewController * commitVC = [[DNWCommitViewController alloc] init];
+        commitVC.getCommitUrl = url;
+        [otherSelf.navigationController pushViewController:commitVC animated:YES];
+        [commitVC release];
+        
+    }];
+
+}
+
+#pragma mark - 创建随机穿越tableView
+- (void)createArcrandomTableView{
+
+    _arcrandomTableView = [[DNWFirstPageTableView alloc] initWithFrame:CGRectMake(640, 0, ScreenWidth, ScreenHeight) style:UITableViewStylePlain urlString:ArcrandomPaperURL];
+    [_rootScrollView addSubview:_arcrandomTableView];
+    [_arcrandomTableView release];
+    
+    // 防止循环引用,预防内存泄露
+    __block DNWFirstPapersViewController * otherSelf = self;
+    [_arcrandomTableView setPushCommitView:^(NSString * url){
+        
+        DNWCommitViewController * commitVC = [[DNWCommitViewController alloc] init];
+        commitVC.getCommitUrl = url;
+        [otherSelf.navigationController pushViewController:commitVC animated:YES];
+        [commitVC release];
+        
+    }];
+
+
+}
+
+#pragma mark - 点击左边按钮
+- (void)didClickLeftBarButtonAction:(UIBarButtonItem *) leftButton{
+}
+
+
+#pragma mark - 点击segmentIndex
+- (void)didClickSegmentView:(UISegmentedControl *)seg{
+    
+    if (seg.selectedSegmentIndex == 1) {
+        
+        if (!_bestNewTableView) {
+            [self createBestNewTableView];
+        }
+    }
+    
+    if (seg.selectedSegmentIndex == 2) {
+        
+        if (!_arcrandomTableView) {
+            [self createArcrandomTableView];
+        }
+    }
+    
+    // 同步_rootScrollView显示内容
+    NSInteger index = seg.selectedSegmentIndex;
+    [_rootScrollView setContentOffset:CGPointMake(ScreenWidth*index, -64) animated:YES];
+    
+    
+    
+}
+
+#pragma mark - 开始滑动
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+
+    #pragma mark 嵌套判断是因为只用了同一个TableView类,网络请求有延迟,可能第二个还没请求完就被第三个覆盖掉了
+    if (!_bestNewTableView) {
+        
+        [self createBestNewTableView];
+        
+    }else{
+        
+        if (!_arcrandomTableView) {
+            [self createArcrandomTableView];
+        }else{
+        }
+        
+    }
+
+}
+
+#pragma mark - 结束滑动,用来同步改变_segmentView对应的selectedSegmentIndex
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+
+    NSInteger nowIndex = scrollView.contentOffset.x / 320.0 ;
+    NSLog(@"%f",scrollView.contentOffset.x);
+    NSLog(@"%lu",nowIndex);
+    _segmentView.selectedSegmentIndex = nowIndex;
+    
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

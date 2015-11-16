@@ -1,0 +1,295 @@
+//
+//  DNWPersonCenterViewController.m
+//  DouNiWan
+//
+//  Created by HMT@WDQ on 14-5-15.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#define HeadViewHeight  200
+
+#import "DNWPersonCenterViewController.h"
+#import "DNWHeadView.h"
+#import "DNWLoginViewController.h"
+#import "DNWSettingTableViewCell.h"
+#import "CUSFlashLabel.h"
+#import "UIImageView+WebCache.h"
+#import "DXAlertView.h"
+#import "DNWUserDeatilInfoViewController.h"
+
+@interface DNWPersonCenterViewController (){
+
+    UITableView * _personCenterTableView;
+    BOOL  isLoad;       //  判断是否已经登录
+
+}
+
+@property (nonatomic, retain) DNWHeadView * headView;
+@property (nonatomic, retain) NSArray     * dataArray;
+
+@end
+
+@implementation DNWPersonCenterViewController
+
+- (void)dealloc{
+
+    RELEASE_SAFELY(_dataArray);
+    RELEASE_SAFELY(_headView);
+    [super dealloc];
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    _personCenterTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight-49) style:UITableViewStylePlain];
+    _personCenterTableView.delegate = self;
+    _personCenterTableView.dataSource = self;
+    _personCenterTableView.showsVerticalScrollIndicator = YES;
+    //_personCenterTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self.view addSubview:_personCenterTableView];
+    [_personCenterTableView release];
+    
+    [self createHeadInfoView];
+    
+    self.dataArray = @[@"个人资料",@"我的收藏",@"夜间模式(开启后摇一摇)",@"推荐逗乐玩给小伙伴们",@"清除缓存",@"检查版本更新",@"意见反馈",@"关于我们"];
+
+}
+
+
+#pragma mark - 创建head视图
+- (void)createHeadInfoView{
+
+    self.headView = [[DNWHeadView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, HeadViewHeight)];
+    _personCenterTableView.tableHeaderView  = _headView;
+    [_headView release];
+    
+    #pragma mark 水滴效果
+    //  预防Block中的内存泄露
+    __block DNWPersonCenterViewController * otherSelf = self;
+    [_headView setHandleRefreshEvent:^{
+        
+        double delayInSeconds = 10.0;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [otherSelf.headView stopRefresh];
+        });
+    }];
+    
+    #pragma mark 响应点击手势方法
+    [_headView setHandleTapGesture:^(){
+    
+        //  判断是否已经授权登录,没登录就去登录界面进行第三方账号登录
+        if ([ShareSDK hasAuthorizedWithType:ShareTypeSinaWeibo] == NO) {
+            
+            [otherSelf jumpToLoginViewController];
+        
+        }
+    }];
+    
+}
+
+#pragma mark - 跳转登录界面
+- (void)jumpToLoginViewController{
+
+    DNWLoginViewController * loginVC = [[DNWLoginViewController alloc] init];
+    loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    loginVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    UINavigationController * loginNC = [[UINavigationController alloc] initWithRootViewController:loginVC];
+    [self presentViewController:loginNC animated:YES completion:nil];
+    
+    [loginVC release];
+    [loginNC release];
+
+}
+
+#pragma mark - 跳转用户详情资料界面
+- (void)jumpToUserDeatilInfoViewController{
+
+    DNWUserDeatilInfoViewController * loginVC = [[DNWUserDeatilInfoViewController alloc] init];
+    loginVC.userInfo = self.userInfo;
+    loginVC.modalPresentationStyle = UIModalPresentationFullScreen;
+    loginVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    UINavigationController * loginNC = [[UINavigationController alloc] initWithRootViewController:loginVC];
+    [self presentViewController:loginNC animated:YES completion:nil];
+    
+    [loginVC release];
+    [loginNC release];
+
+    
+
+}
+
+#pragma mark - 登录成功后信息回调,传递一个平台用户协议对象过来,就可以获得用户的很多信息
+- (void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    
+     __block DNWPersonCenterViewController * otherSelf = self;
+    if ([ShareSDK hasAuthorizedWithType:ShareTypeSinaWeibo] == YES) {
+        
+        [ShareSDK getUserInfoWithType:ShareTypeSinaWeibo
+                          authOptions:nil
+                               result:^(BOOL result, id<ISSPlatformUser> userInfo, id<ICMErrorInfo> error) {
+                                   
+                                   otherSelf.userInfo = userInfo;
+                                   _headView.loginLabel.text = [_userInfo nickname];
+                                   [_headView.avatarView setImageWithURL:[NSURL URLWithString:[_userInfo profileImage]] placeholderImage:nil];
+                                   
+                               }
+         
+         ];
+    }
+
+}
+
+#pragma mark - tableView delegate and datasource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+
+    return 1;
+
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+
+    return [_dataArray count];
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    return 40.0;
+
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    static NSString *CellIdentifier = @"Cell";
+    DNWSettingTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    // Configure the cell...
+    if (!cell) {
+        
+        cell = [[[DNWSettingTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier]autorelease];
+        
+    }
+    
+    switch (indexPath.row) {
+        case 2:{
+            UISwitch * switchButton = [[UISwitch alloc] initWithFrame:CGRectMake(265, 5, 20, 10)];
+            [switchButton setOn:NO];
+            [switchButton addTarget:self action:@selector(changeValueOfswitchAction:) forControlEvents:UIControlEventValueChanged];
+            [cell.contentView addSubview:switchButton];
+            [switchButton release];
+        }
+            break;
+        case 0:
+        case 1:
+        case 6:
+        case 7:
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            break;
+        default:
+            break;
+    }
+    
+    cell.contentLabel.text = [self.dataArray objectAtIndex:indexPath.row];
+    
+    return cell;
+}
+
+-(void)changeValueOfswitchAction:(id)sender
+{
+    UISwitch *switchButton = (UISwitch*)sender;
+    BOOL isButtonOn = switchButton.isOn;
+    if (isButtonOn) {
+        
+    }else {
+        
+    }
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    #pragma mark  个人资料
+    if (indexPath.row == 0) {
+        
+         __block DNWPersonCenterViewController * otherSelf = self;
+        if ([ShareSDK hasAuthorizedWithType:ShareTypeSinaWeibo] == NO) {
+            
+            DXAlertView * alert = [[DXAlertView alloc] initWithTitle:@"您还没有登录" contentText:@"是否现在去登录" leftButtonTitle:@"取消" rightButtonTitle:@"确定"];
+            [alert show];
+            alert.rightBlock = ^() {
+                
+                [otherSelf jumpToLoginViewController];
+                
+            };
+            [alert release];
+        } else {
+            
+        }
+    }
+    
+    #pragma mark  我的收藏
+    if (indexPath.row == 1) {
+        
+        
+        
+    }
+    
+    
+
+}
+
+#pragma mark- scroll delegate 头部视图效果方法
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    self.headView.offsetY = scrollView.contentOffset.y;
+}
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    _headView.touching = NO;
+}
+-(void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    if(decelerate==NO)
+    {
+        _headView.touching = NO;
+    }
+}
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    _headView.touching = YES;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

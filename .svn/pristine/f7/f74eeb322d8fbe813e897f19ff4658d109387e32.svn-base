@@ -1,0 +1,28 @@
+//
+//  DNWSecondViewTableViewCell.h
+//  DouNiWan
+//
+//  Created by apple on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "CustomButton.h"
+
+#import "DNWOneCellDataForSecondView.h"
+
+@interface DNWSecondViewTableViewCell : UITableViewCell
+
+@property(nonatomic,retain)UIImageView * iconView;
+@property(nonatomic,retain)UILabel * nameLabel;
+@property(nonatomic,retain)UILabel * timeLabel;
+@property(nonatomic,retain)UILabel * titleLabel;
+@property(nonatomic,retain)UIImageView * mainImageView;
+@property(nonatomic,retain)CustomButton * agreeButton;
+@property(nonatomic,retain)CustomButton * disagreeButton;
+@property(nonatomic,retain)CustomButton * shareButton;
+@property(nonatomic,retain)CustomButton * discussButton;
+
+-(void)initWith:(DNWOneCellDataForSecondView*)celldata;
+
+@end

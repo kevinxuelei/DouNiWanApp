@@ -1,0 +1,167 @@
+//
+//  DNWThirdVideoSubclassViewController.m
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-9.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import "DNWAppDelegate.h"
+#import "DNWThirdVideoSubclassViewController.h"
+#import "DNWVideoPlayView.h"
+#import "DNWThirdData.h"
+#import "HMTMyCustomNetRequest.h"
+#import "DNWWedViewController.h"
+#import "DNWMainViewController.h"
+
+@interface DNWThirdVideoSubclassViewController ()
+{
+   // DNWVideoPlayView * _DNWVPV;
+    BOOL _enterWebView;
+    DNWMainViewController *dnwmin;
+}
+@end
+
+@implementation DNWThirdVideoSubclassViewController
+
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    
+    }
+    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+
+    [super viewWillAppear:animated];
+    
+    _enterWebView = NO;
+    //视频加载
+    [_DNWVPV videoPlayer];
+    //视频播放
+    [_DNWVPV.videoPlayer.moviePlayer play];
+    
+    ((DNWAppDelegate *)[UIApplication sharedApplication].delegate).shouldAutorotate = YES;
+
+
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    NSURL * url = [NSURL URLWithString:_thirdData.mp4_url];
+    _DNWVPV = [[DNWVideoPlayView alloc]initWithFrame:[[UIScreen mainScreen] bounds] url:url string:_thirdData.title];
+    //设置监听者(通知,把自己设为观察者)
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(test:) name:MPMoviePlayerPlaybackStateDidChangeNotification object:nil];
+    _DNWVPV.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_DNWVPV];
+	[_DNWVPV release];
+    
+#pragma mark----创建UIBarButtonItem实现返回-------
+    UIBarButtonItem *barButton= [[UIBarButtonItem alloc]initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:self action:@selector(didClickleftBarButtonItemAction)];
+    self.navigationItem.leftBarButtonItem = barButton;
+    [barButton release];
+    self.navigationItem.title = @"逗乐玩视频播放";
+
+#pragma mark----使用block实现推出DNWWedViewController页面-------
+    __block DNWThirdVideoSubclassViewController *Block = self;
+
+    [_DNWVPV changeViewBackGround:^{
+       
+        [Block pushDNWWedViewController:_thirdData.web_url];
+        
+    }];
+    
+//    //监测屏幕方向
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didBeginTouchDNWMainViewController) name: @"back" object:nil];
+}
+#pragma mark-----监测视频是否还没播放就推出下一页面---
+- (void)test:(NSNotification *)notification
+{
+    if(_enterWebView == NO) return;
+    MPMoviePlayerController *playerController = notification.object;
+    [playerController pause];
+}
+
+#pragma mark------推出DNWWedViewController页面实现-------
+- (void)pushDNWWedViewController:(NSString *)wed
+{
+    _enterWebView = YES;
+    [_DNWVPV.videoPlayer.moviePlayer pause];
+    
+    DNWWedViewController *DNWWViewController = [[DNWWedViewController alloc]init];
+    
+    NSURL * url = [NSURL URLWithString:_thirdData.web_url];
+    DNWWViewController.url = url;
+    DNWWViewController.WedThirdData=_thirdData;
+    UINavigationController *rootNC = [[UINavigationController alloc]initWithRootViewController:DNWWViewController];
+    
+//    [self presentViewController:rootNC animated:YES completion:nil];
+    [self.navigationController pushViewController:DNWWViewController animated:YES];
+    [rootNC release];
+    [DNWWViewController release];
+    
+}
+
+#pragma mark------实现返回上个页面-------
+- (void)didClickleftBarButtonItemAction
+{
+    [_DNWVPV.videoPlayer.moviePlayer stop];
+    //_DNWVPV.videoPlayer=nil;
+//    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma mark----释放----
+- (void)dealloc
+{
+    RELEASE_SAFELY(_thirdData);
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+   // [[NSNotificationCenter defaultCenter] removeObserver:self name:@"back" object:self];
+    
+    [super dealloc];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+#pragma mark----当屏幕旋转时调用方法--
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+        
+     [_DNWVPV.videoPlayer.moviePlayer setFullscreen:YES animated:YES];
+    //[self didBeginTouchDNWMainViewController];
+    
+}
+//#pragma mark------控制屏幕在播放视频时可以转向放大----
+//- (void)didBeginTouchDNWMainViewController
+//{
+//    if([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeLeft
+//       ||[[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeRight)
+//    {
+//        [_DNWVPV.videoPlayer.moviePlayer setFullscreen:YES animated:YES];
+//        [_DNWVPV.videoPlayer.moviePlayer setControlStyle:MPMovieRepeatModeNone];
+//        
+//    }
+//    else
+//    {
+//        [_DNWVPV.videoPlayer.moviePlayer setFullscreen:YES animated:YES];
+//        [_DNWVPV.videoPlayer.moviePlayer setControlStyle:MPMovieControlStyleEmbedded];
+//    }
+//    
+//}
+//
+
+
+
+
+
+@end

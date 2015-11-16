@@ -1,0 +1,56 @@
+//
+//  DNWThirdData.h
+//  DouNiWan
+//
+//  Created by chenfengchang on 14-5-12.
+//  Copyright (c) 2014年 胡明涛. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface DNWThirdData : NSObject
+
+/**
+ *Id
+ * 视频网址 mp4_url
+ * 图片地址 pic
+ * 图片的高 pic_h
+ * 图片的格式 pic_t
+ * 图片的宽 pic_w
+ * 上传时间 timeStr
+ * 视频的解说 title
+ * 视频网页模式 web_url
+ */
+
+
+//@property (nonatomic,copy)NSString *cate_id;
+//@property (nonatomic,copy)NSString *cTime;
+
+@property (nonatomic,copy)NSString *Id;//地址用来记录显示位置
+
+@property (nonatomic,copy)NSString *mp4_url;//视频网址
+
+@property (nonatomic,copy)NSString *pic;//图片地址
+
+@property (nonatomic,copy)NSString *pic_h;//图片的高
+
+@property (nonatomic,copy)NSString *cTime;//图片的格式
+
+@property (nonatomic,copy)NSString *pic_w;//图片的宽
+
+@property (nonatomic,copy)NSString *timeStr;//上传时间
+
+@property (nonatomic,copy)NSString *title;//视频的解说
+
+@property (nonatomic,copy)NSString *uname;//视频类名
+
+@property (nonatomic,copy)NSString *web_url;//视频网页模式
+
+
+//初始化
+- (id)initWithNSDictionary:(NSDictionary *)dic;
+
+
+
+
+@end
